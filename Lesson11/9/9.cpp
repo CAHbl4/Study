@@ -37,6 +37,7 @@ void main() {
 			count++;
 		} while (k > 1);
 		if (k == 1) {
+			cout << n << ": " << count << endl;
 			fprintf_s(stream, "%d,%d\n", n, count);
 		}
 	}

@@ -1,8 +1,11 @@
 #include <iostream>
+#include <ctime>
 
 using namespace std;
 
-unsigned long long fib(int n);
+unsigned long long int fib_r(int n);
+unsigned long long int fib_n(int n);
+
 
 void main() {
 	setlocale(LC_CTYPE, "Rus");
@@ -18,7 +21,26 @@ void main() {
 	int n;
 	cout << "¬ведите n: ";
 	if (cin >> n) {
-		cout << fib(n);
+		unsigned long long int f;
+		clock_t c_start, c_end;
+
+		c_start = clock();
+		f = fib_r(n);
+		c_end = clock();
+
+		cout << "‘ибоначи через рекурсию. Ёкспоненциальна€ сложность." << endl;
+		cout << "f = " << f << endl;
+		cout << "CPU time used: " << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n";
+
+		c_start = clock();
+		f = fib_n(n);
+		c_end = clock();
+
+		cout << "‘ибоначи без рекурсии. Ћинейна€ сложность." << endl;
+		cout << "f = " << f << endl;
+		cout << "CPU time used: " << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n";
+
+
 	}
 	else cout << "ќшибка ввода";
 
@@ -26,8 +48,24 @@ void main() {
 	system("pause");
 }
 
-unsigned long long fib(int n) {
+unsigned long long int fib_r(int n) {
 	if (n == 0) return 0;
 	else if (n == 1) return 1;
-	return fib(n - 1) + fib(n - 2);
+	return fib_r(n - 1) + fib_r(n - 2);
+}
+
+unsigned long long int fib_n(int n) {
+	if (n <= 0) return 0;
+	else if (n == 1) return 1;
+	else {
+		long value0 = 0;
+		long value1 = 1;
+		long value2 = 1;
+		for (int i = 0; i < n - 1; i++) {
+			value2 = value0 + value1;
+			value0 = value1;
+			value1 = value2;
+		}
+		return value2;
+	}
 }
