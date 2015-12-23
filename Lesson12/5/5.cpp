@@ -12,17 +12,20 @@ void main() {
 	*/
 
 	//Код программы
-	int bull = 0, cow = 0, calf = 0;
+	int bull = 1, cow = 1, calf = 1;
 
-	for (int count = 0; count < 100; count++) {
-		if ((100 - bull * 10) / 0.5 > (100 - count)) bull++;
-		else if ((100 - cow * 5) / 0.5 > (100 - count)) cow++;
-		else calf++;
+	for (; bull < 10; bull++) {
+		for (; cow < 20; cow++) {
+			calf = 100 - (bull + cow);
+			if (bull * 20 + cow * 10 + calf == 200) {
+				cout << "Быков: " << bull << endl;
+				cout << "Коров: " << cow << endl;
+				cout << "Телят: " << calf << endl;
+			}
+		}
+
 	}
 
-	cout << "Быков: " << bull << endl;
-	cout << "Коров: " << cow << endl;
-	cout << "Телят: " << calf << endl;
 
 	cout << endl;
 	system("pause");
