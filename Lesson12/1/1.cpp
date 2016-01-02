@@ -7,7 +7,7 @@ void main() {
 
 	/*
 	Вывести на экран фигуры заполненные звездочками. Размер стороны квадрата ввести с клавиатуры.
-	
+
 	*/
 
 	//Код программы
@@ -15,22 +15,91 @@ void main() {
 	int a;
 	cout << "Введите сторону: ";
 	if (cin >> a) {
-		//for (int i = 1; i <= a; i++) {
-		//	for (int j = 1; j <= a; j++) {
-		//		if (a - i < j) cout << "*"; else cout << " ";
-		//	}
-		//	cout << endl;
-		//}
-		//cout << endl;
-		//for (int i = 1; i <= a; i++) {
-		//	for (int j = 1; j <= a; j++) {
-		//		if (a - i > j) cout << "*"; else cout << " ";
-		//	}
-		//	cout << endl;
-		//}
+		cout << "а: " << endl;
 		for (int i = 1; i <= a; i++) {
 			for (int j = 1; j <= a; j++) {
-				if ( a - i < j && a - j < i) cout << "*"; else cout << " ";
+				if (i - j <= 0) cout << "*"; else cout << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+
+		cout << "б: " << endl;
+		for (int i = 1; i <= a; i++) {
+			for (int j = 1; j <= a; j++) {
+				if (i - j >= 0) cout << "*"; else cout << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+
+		cout << "в: " << endl;
+		for (int i = 1; i <= a; i++) {
+			for (int j = 1; j <= a; j++) {
+				if (i - j <= 0 && i + j <= a + 1) cout << "*"; else cout << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+
+		cout << "г: " << endl;
+		for (int i = 1; i <= a; i++) {
+			for (int j = 1; j <= a; j++) {
+				if (i - j >= 0 && i + j >= a + 1) cout << "*"; else cout << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+
+		cout << "д: " << endl;
+		for (int i = 1; i <= a; i++) {
+			for (int j = 1; j <= a; j++) {
+				if ((i - j <= 0 && i + j <= a + 1) || (i - j >= 0 && i + j >= a + 1)) cout << "*"; else cout << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+
+		cout << "е: " << endl;
+		for (int i = 1; i <= a; i++) {
+			for (int j = 1; j <= a; j++) {
+				if (!((i - j < 0 && i + j < a + 1) || (i - j > 0 && i + j > a + 1))) cout << "*"; else cout << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+
+		cout << "ж: " << endl;
+		for (int i = 1; i <= a; i++) {
+			for (int j = 1; j <= a; j++) {
+				if (j - i <= 0 && i + j <= a + 1) cout << "*"; else cout << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+
+		cout << "з: " << endl;
+		for (int i = 1; i <= a; i++) {
+			for (int j = 1; j <= a; j++) {
+				if (j - i >= 0 && i + j >= a + 1) cout << "*"; else cout << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+
+		cout << "и: " << endl;
+		for (int i = 1; i <= a; i++) {
+			for (int j = 1; j <= a; j++) {
+				if (j + i <= a + 1) cout << "*"; else cout << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+
+		cout << "к: " << endl;
+		for (int i = 1; i <= a; i++) {
+			for (int j = 1; j <= a; j++) {
+				if (j + i >= a + 1) cout << "*"; else cout << " ";
 			}
 			cout << endl;
 		}
