@@ -13,7 +13,6 @@ void main() {
 
 	int a[100];
 	int n;
-	int i;
 
 	cout << "Сколько элементов массива: ";
 	cin >> n;
