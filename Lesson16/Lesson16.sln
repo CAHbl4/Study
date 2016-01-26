@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Task5", "Task5\Task5.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "home1", "home1\home1.vcxproj", "{A5F61C84-1135-498C-8C00-8BDD288AC1CE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "task6", "task6\task6.vcxproj", "{4941EC6E-51AD-4DBB-95AB-A47C1BB74F7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -40,6 +42,8 @@ Global
 		{F2230D3A-586B-4EA1-A304-87366797E102}.Debug|x86.Build.0 = Debug|Win32
 		{A5F61C84-1135-498C-8C00-8BDD288AC1CE}.Debug|x86.ActiveCfg = Debug|Win32
 		{A5F61C84-1135-498C-8C00-8BDD288AC1CE}.Debug|x86.Build.0 = Debug|Win32
+		{4941EC6E-51AD-4DBB-95AB-A47C1BB74F7D}.Debug|x86.ActiveCfg = Debug|Win32
+		{4941EC6E-51AD-4DBB-95AB-A47C1BB74F7D}.Debug|x86.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
