@@ -4,7 +4,7 @@
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 	int i, i2, i3;
 	for (i = 1; i <= 8; i++)
 	{

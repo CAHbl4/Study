@@ -10,7 +10,7 @@ int check(int i, int j, int s, char **f);
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	int s;
 	scanf_s("%d", &s);

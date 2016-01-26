@@ -6,16 +6,16 @@ void main() {
 	setlocale(LC_CTYPE, "Rus");
 
 	/*
-	Вывести на экран фигуры заполненные звездочками. Размер стороны квадрата ввести с клавиатуры.
+	Р’С‹РІРµСЃС‚Рё РЅР° СЌРєСЂР°РЅ С„РёРіСѓСЂС‹ Р·Р°РїРѕР»РЅРµРЅРЅС‹Рµ Р·РІРµР·РґРѕС‡РєР°РјРё. Р Р°Р·РјРµСЂ СЃС‚РѕСЂРѕРЅС‹ РєРІР°РґСЂР°С‚Р° РІРІРµСЃС‚Рё СЃ РєР»Р°РІРёР°С‚СѓСЂС‹.
 
 	*/
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	int a;
-	cout << "Введите сторону: ";
+	cout << "Р’РІРµРґРёС‚Рµ СЃС‚РѕСЂРѕРЅСѓ: ";
 	if (cin >> a) {
-		cout << "а: " << endl;
+		cout << "Р°: " << endl;
 		for (int i = 1; i <= a; i++) {
 			for (int j = 1; j <= a; j++) {
 				if (i - j <= 0) cout << "*"; else cout << " ";
@@ -24,7 +24,7 @@ void main() {
 		}
 		cout << endl;
 
-		cout << "б: " << endl;
+		cout << "Р±: " << endl;
 		for (int i = 1; i <= a; i++) {
 			for (int j = 1; j <= a; j++) {
 				if (i - j >= 0) cout << "*"; else cout << " ";
@@ -33,7 +33,7 @@ void main() {
 		}
 		cout << endl;
 
-		cout << "в: " << endl;
+		cout << "РІ: " << endl;
 		for (int i = 1; i <= a; i++) {
 			for (int j = 1; j <= a; j++) {
 				if (i - j <= 0 && i + j <= a + 1) cout << "*"; else cout << " ";
@@ -42,7 +42,7 @@ void main() {
 		}
 		cout << endl;
 
-		cout << "г: " << endl;
+		cout << "Рі: " << endl;
 		for (int i = 1; i <= a; i++) {
 			for (int j = 1; j <= a; j++) {
 				if (i - j >= 0 && i + j >= a + 1) cout << "*"; else cout << " ";
@@ -51,7 +51,7 @@ void main() {
 		}
 		cout << endl;
 
-		cout << "д: " << endl;
+		cout << "Рґ: " << endl;
 		for (int i = 1; i <= a; i++) {
 			for (int j = 1; j <= a; j++) {
 				if ((i - j <= 0 && i + j <= a + 1) || (i - j >= 0 && i + j >= a + 1)) cout << "*"; else cout << " ";
@@ -60,7 +60,7 @@ void main() {
 		}
 		cout << endl;
 
-		cout << "е: " << endl;
+		cout << "Рµ: " << endl;
 		for (int i = 1; i <= a; i++) {
 			for (int j = 1; j <= a; j++) {
 				if (!((i - j < 0 && i + j < a + 1) || (i - j > 0 && i + j > a + 1))) cout << "*"; else cout << " ";
@@ -69,7 +69,7 @@ void main() {
 		}
 		cout << endl;
 
-		cout << "ж: " << endl;
+		cout << "Р¶: " << endl;
 		for (int i = 1; i <= a; i++) {
 			for (int j = 1; j <= a; j++) {
 				if (j - i <= 0 && i + j <= a + 1) cout << "*"; else cout << " ";
@@ -78,7 +78,7 @@ void main() {
 		}
 		cout << endl;
 
-		cout << "з: " << endl;
+		cout << "Р·: " << endl;
 		for (int i = 1; i <= a; i++) {
 			for (int j = 1; j <= a; j++) {
 				if (j - i >= 0 && i + j >= a + 1) cout << "*"; else cout << " ";
@@ -87,7 +87,7 @@ void main() {
 		}
 		cout << endl;
 
-		cout << "и: " << endl;
+		cout << "Рё: " << endl;
 		for (int i = 1; i <= a; i++) {
 			for (int j = 1; j <= a; j++) {
 				if (j + i <= a + 1) cout << "*"; else cout << " ";
@@ -96,7 +96,7 @@ void main() {
 		}
 		cout << endl;
 
-		cout << "к: " << endl;
+		cout << "Рє: " << endl;
 		for (int i = 1; i <= a; i++) {
 			for (int j = 1; j <= a; j++) {
 				if (j + i >= a + 1) cout << "*"; else cout << " ";
@@ -105,7 +105,7 @@ void main() {
 		}
 		cout << endl;
 	}
-	else cout << "Ошибка ввода!";
+	else cout << "РћС€РёР±РєР° РІРІРѕРґР°!";
 
 
 	cout << endl;

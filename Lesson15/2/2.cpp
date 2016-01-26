@@ -9,7 +9,7 @@ void main() {
 
 	*/
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 	const int SIZE = 10;
 
 	int arr[SIZE];
