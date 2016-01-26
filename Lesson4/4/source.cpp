@@ -5,7 +5,7 @@ using namespace std;
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
+	//Код программы
 
 	int a = 50, b = 25;
 	float c = 50.0, d = 25.0;

@@ -5,9 +5,9 @@
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
+	//Код программы
 	int n, count;
-	printf("Р’РІРµРґРёС‚Рµ С†РµР»РѕРµ С‡РёСЃР»Рѕ: ");
+	printf("Введите целое число: ");
 	scanf_s("%d", &n);
 	count = 0;
 	while (n != 0)
@@ -15,7 +15,7 @@ void main() {
 		count++;
 		n = n / 10;
 	}
-	printf("Р’ С‡РёСЃР»Рµ %d РЅР°С€Р»Рё %d С†РёС„СЂ", n, count);
+	printf("В числе %d нашли %d цифр", n, count);
 
 	_getch();
 }

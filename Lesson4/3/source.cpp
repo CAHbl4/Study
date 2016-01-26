@@ -5,9 +5,9 @@ using namespace std;
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
+	//Код программы
 
-	bool boolean = 25; // РїРµСЂРµРјРµРЅРЅР°СЏ С‚РёРїР° bool СЃ РёРјРµРЅРµРј boolean
+	bool boolean = 25; // переменная типа bool с именем boolean
 	if (boolean)
 		cout << "true = " << boolean << endl;
 	else

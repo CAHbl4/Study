@@ -5,9 +5,9 @@
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 	float a, b;
-	printf("Р’РІРµРґРёС‚Рµ СЃСѓРјРјСѓ:");
+	printf("Введите сумму:");
 	scanf_s("%f", &a);
-	printf("\nР’РІРµРґРёС‚Рµ РєСѓСЂСЃ:");
+	printf("\nВведите курс:");
 	scanf_s("%f", &b);
 	printf("\n%.2f: USD = %.2f BYR", a, a*b);
 	_getch();

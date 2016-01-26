@@ -10,7 +10,7 @@ void main() {
 
 	*/
 
-	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
+	//Код программы
 
 	const int SIZE = 10;
 	int a[SIZE];
@@ -25,7 +25,7 @@ void main() {
 		sum += a[i] * b[i];
 		printf_s("%8d %8d %8d\n", a[i], b[i], a[i] * b[i]);
 	}
-	cout << "РЎСѓРјРјР° РїСЂРѕРёР·РІРµРґРµРЅРёР№: " << sum;
+	cout << "Сумма произведений: " << sum;
 
 
 	cout << endl;

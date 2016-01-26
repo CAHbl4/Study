@@ -4,7 +4,7 @@ using namespace std;
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
+	//Код программы
 
 	cout << "data type\t" << "size" << endl;
 	cout << "bool=\t\t" << sizeof(bool) << endl;

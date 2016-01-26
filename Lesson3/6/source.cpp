@@ -5,13 +5,13 @@
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
+	//Код программы
 	int i;
 	char c;
 
-	printf("Р’РІРµРґРёС‚Рµ РґР»РёРЅРЅСѓ: ");
+	printf("Введите длинну: ");
 	scanf_s("%d", &i);
-	printf("Р’РІРµРґРёС‚Рµ СЃРёРјРІРѕР»: ");
+	printf("Введите символ: ");
 	scanf_s(" %c", &c);
 	while (i){
 		printf("%c", c);

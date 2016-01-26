@@ -11,7 +11,7 @@ void main() {
 
 	*/
 
-	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
+	//Код программы
 
 	const int   MaxMemSize = { 1000 * 8 + 10000 };
 	register int   y = x * MaxMemSize;

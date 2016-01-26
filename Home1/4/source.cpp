@@ -4,6 +4,6 @@
 
 void main() {
 	setlocale(LC_CTYPE, "Rus");
-	printf("Π—Π΄ΠµΡΡ Π±Ρ‹Π» Π’Π°ΡΡ!");
+	printf("Ηδερό αϋλ Βΰρÿ!");
 	_getch();
 }

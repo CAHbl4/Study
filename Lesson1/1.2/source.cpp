@@ -5,12 +5,12 @@
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//ÐšÐ¾Ð´ Ð¿Ñ€Ð¾Ð³Ñ€Ð°Ð¼Ð¼Ñ‹
+	//Êîä ïðîãðàììû
 
-	printf("   Ð–\n");
-	printf("  Ð–Ð–Ð–\n");
-	printf(" Ð–Ð–Ð–Ð–Ð–\n");
-	printf("Ð–Ð–Ð–Ð–Ð–Ð–Ð–\n");
+	printf("   Æ\n");
+	printf("  ÆÆÆ\n");
+	printf(" ÆÆÆÆÆ\n");
+	printf("ÆÆÆÆÆÆÆ\n");
 	printf(" HH HH\n");
 	printf(" ZZZZZ\n");
 

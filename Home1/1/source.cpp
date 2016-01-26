@@ -6,8 +6,8 @@ void main() {
 	setlocale(LC_CTYPE, "Rus");
 	const float INCHES = 2.54;
 	float a;
-	printf("Р’РІРµРґРёС‚Рµ Р·РЅР°С‡РµРЅРёРµ РІ РґСЋР№РјР°С…:");
+	printf("Введите значение в дюймах:");
 	scanf_s("%f", &a);
-	printf("\n%.2f: РґСЋР№РјРѕРІ = %.2f РјРј", a, a * INCHES);
+	printf("\n%.2f: дюймов = %.2f мм", a, a * INCHES);
 	_getch();
 }

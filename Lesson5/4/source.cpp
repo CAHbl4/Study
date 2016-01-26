@@ -5,7 +5,7 @@ using namespace std;
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
+	//Код программы
 	int i;
 
 	for (i = 1; i <= 256; i++) {

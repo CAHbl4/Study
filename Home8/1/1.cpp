@@ -6,36 +6,36 @@ void main() {
 	setlocale(LC_CTYPE, "Rus");
 
 	/*
-	РќР°РїРёСЃР°С‚СЊ РїСЂРѕРіСЂР°РјРјСѓ, РєРѕС‚РѕСЂР°СЏ РїРѕ РІРІРµРґРµРЅРЅРѕРјСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј С‡РёСЃР»Сѓ РІС‹РІРѕРґРёС‚ РЅР°Р·РІР°РЅРёРµ РјРµСЃСЏС†Р°. 
-	РџСЂРѕРІРµСЂСЏС‚СЊ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РІРІРѕРґР° РґР°РЅРЅС‹С….
+	Написать программу, которая по введенному пользователем числу выводит название месяца. 
+	Проверять корректность ввода данных.
 
 	*/
 
-	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
+	//Код программы
 	enum month { jan = 1, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec };
 	int m;
-	cout << "Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ РјРµСЃСЏС†Р°: ";
+	cout << "Введите номер месяца: ";
 	if (cin >> m) {
 		if (m && m <= 12) {
 			switch (m)
 			{
-			case jan: cout << "РЇРЅРІР°СЂСЊ"; break;
-			case feb: cout << "Р¤РµРІСЂР°Р»СЊ"; break;
-			case mar: cout << "РњР°СЂС‚"; break;
-			case apr: cout << "РђРїСЂРµР»СЊ"; break;
-			case may: cout << "РњР°Р№"; break;
-			case jun: cout << "РСЋРЅСЊ"; break;
-			case jul: cout << "РСЋР»СЊ"; break;
-			case aug: cout << "РђРІРіСѓСЃС‚"; break;
-			case sep: cout << "РЎРµРЅС‚СЏР±СЂСЊ"; break;
-			case oct: cout << "РћРєС‚СЏР±СЂСЊ"; break;
-			case nov: cout << "РќРѕСЏР±СЂСЊ"; break;
-			case dec: cout << "Р”РµРєР°Р±СЂСЊ"; break;
+			case jan: cout << "Январь"; break;
+			case feb: cout << "Февраль"; break;
+			case mar: cout << "Март"; break;
+			case apr: cout << "Апрель"; break;
+			case may: cout << "Май"; break;
+			case jun: cout << "Июнь"; break;
+			case jul: cout << "Июль"; break;
+			case aug: cout << "Август"; break;
+			case sep: cout << "Сентябрь"; break;
+			case oct: cout << "Октябрь"; break;
+			case nov: cout << "Ноябрь"; break;
+			case dec: cout << "Декабрь"; break;
 			}
 		}
-		else cout << "Р’ РіРѕРґСѓ 12 РјРµСЃСЏС†РµРІ";
+		else cout << "В году 12 месяцев";
 	}
-	else cout << "РћС€РёР±РєР° РІРІРѕРґР°";
+	else cout << "Ошибка ввода";
 
 
 	cout << endl;

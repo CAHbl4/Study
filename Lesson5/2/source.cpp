@@ -5,7 +5,7 @@ using namespace std;
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
+	//Код программы
 
 	int I = 27;
 	short S = 2;
@@ -13,7 +13,7 @@ void main() {
 	bool B = false;
 
 	cout << I - F + S * B << "    " << sizeof(I - F + S * B);
-	// РЅР° СЌРєСЂР°РЅРµ С‡РёСЃР»Рѕ 4.7
+	// на экране число 4.7
 
 	cout << endl;
 	system("pause");
