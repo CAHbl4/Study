@@ -12,8 +12,6 @@ int funcSub(int a, int b);
 int funcMult(int a, int b);
 int funcDiv(int a, int b);
 
-
-
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
