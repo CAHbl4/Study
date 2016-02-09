@@ -6,7 +6,6 @@ using namespace std;
 unsigned long long int fib_r(int n);
 unsigned long long int fib_n(int n);
 
-
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
@@ -32,10 +31,13 @@ void main() {
 		cout << "f = " << f << endl;
 		cout << "CPU time used: " << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n";
 
+		cout << endl;
+
 		c_start = clock();
 		f = fib_n(n);
 		c_end = clock();
 
+		cout << ULLONG_MAX << endl;
 		cout << "Фибоначи без рекурсии. Линейная сложность." << endl;
 		cout << "f = " << f << endl;
 		cout << "CPU time used: " << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n";
@@ -58,9 +60,9 @@ unsigned long long int fib_n(int n) {
 	if (n <= 0) return 0;
 	else if (n == 1) return 1;
 	else {
-		long value0 = 0;
-		long value1 = 1;
-		long value2 = 1;
+		unsigned long long int value0 = 0;
+		unsigned long long int value1 = 1;
+		unsigned long long int value2 = 1;
 		for (int i = 0; i < n - 1; i++) {
 			value2 = value0 + value1;
 			value0 = value1;
