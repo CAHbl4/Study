@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1", "1\1.vcxproj", "{1DEF6843-23B5-4DD3-BAA9-B4612FB24F13}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2", "2\2.vcxproj", "{DE7DD0A9-0B43-41FD-A888-063EA39F4A67}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "3", "3\3.vcxproj", "{3F37CA17-D9A4-4306-A8E0-EC20B9A889B5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "4", "4\4.vcxproj", "{2E8B2F65-22F1-4290-B5F7-D9D6C98E769C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "5", "5\5.vcxproj", "{1FAB27F8-021A-4571-85A4-2795749E2484}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "6", "6\6.vcxproj", "{B173C8D1-54F8-448A-B5E7-829F4FD0C645}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lesson1", "Lesson1\Lesson1.vcxproj", "{54CF73BC-6058-4B21-A8BE-85FD2B7D8F6A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1DEF6843-23B5-4DD3-BAA9-B4612FB24F13}.Debug|x86.ActiveCfg = Debug|Win32
+		{1DEF6843-23B5-4DD3-BAA9-B4612FB24F13}.Debug|x86.Build.0 = Debug|Win32
+		{DE7DD0A9-0B43-41FD-A888-063EA39F4A67}.Debug|x86.ActiveCfg = Debug|Win32
+		{DE7DD0A9-0B43-41FD-A888-063EA39F4A67}.Debug|x86.Build.0 = Debug|Win32
+		{3F37CA17-D9A4-4306-A8E0-EC20B9A889B5}.Debug|x86.ActiveCfg = Debug|Win32
+		{3F37CA17-D9A4-4306-A8E0-EC20B9A889B5}.Debug|x86.Build.0 = Debug|Win32
+		{2E8B2F65-22F1-4290-B5F7-D9D6C98E769C}.Debug|x86.ActiveCfg = Debug|Win32
+		{2E8B2F65-22F1-4290-B5F7-D9D6C98E769C}.Debug|x86.Build.0 = Debug|Win32
+		{1FAB27F8-021A-4571-85A4-2795749E2484}.Debug|x86.ActiveCfg = Debug|Win32
+		{1FAB27F8-021A-4571-85A4-2795749E2484}.Debug|x86.Build.0 = Debug|Win32
+		{B173C8D1-54F8-448A-B5E7-829F4FD0C645}.Debug|x86.ActiveCfg = Debug|Win32
+		{B173C8D1-54F8-448A-B5E7-829F4FD0C645}.Debug|x86.Build.0 = Debug|Win32
+		{54CF73BC-6058-4B21-A8BE-85FD2B7D8F6A}.Debug|x86.ActiveCfg = Debug|Win32
+		{54CF73BC-6058-4B21-A8BE-85FD2B7D8F6A}.Debug|x86.Build.0 = Debug|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
