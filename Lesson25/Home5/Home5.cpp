@@ -20,7 +20,7 @@ void main() {
 	int size = 10;
 	int *arr = new int[size];
 
-
+	fill_rand(arr, size, 0, 10);
 	print_arr(arr, size);
 
 	shift(arr, size, RIGHT, 3);
