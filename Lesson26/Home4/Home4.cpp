@@ -19,11 +19,7 @@ void main() {
 	print_arr(arr, size);
 	cout << endl;
 
-	cout << "m_arr " << arr << endl;
-
 	delete_negative(&arr, &size);
-
-	cout << "m_arr_d " << arr << endl;
 
 	print_arr(arr, size);
 
@@ -54,5 +50,4 @@ void delete_negative(int **arr, int *size)
 	delete[] *arr;
 	*size = new_size;
 	*arr = result;
-	cout << "f_arr " << arr << endl;
 }
