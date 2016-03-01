@@ -1,5 +1,4 @@
 ﻿#include <iostream>
-#include "functions.h"
 using namespace std;
 
 /*
@@ -59,7 +58,7 @@ void print_arr(int* arr, int size)
 {
 	for (int i = 0; i < size; i++)
 	{
-		std::cout << arr[i] << " ";
+		cout << arr[i] << " ";
 	}
 	cout << endl;
 }
