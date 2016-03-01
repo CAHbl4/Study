@@ -1,39 +1,58 @@
-#include <iostream>
-#include "functions.h"
+п»ї#include <iostream>
 using namespace std;
 
 /*
-5.	Даны два массива: А[M] и B[N] (M и  N вводятся с клавиатуры). Необходимо создать третий массив минимально возможного размера, в котором нужно собрать элементы обоих массивов.
+5.	Р”Р°РЅС‹ РґРІР° РјР°СЃСЃРёРІР°: Рђ[M] Рё B[N] (M Рё  N РІРІРѕРґСЏС‚СЃСЏ СЃ РєР»Р°РІРёР°С‚СѓСЂС‹). РќРµРѕР±С…РѕРґРёРјРѕ СЃРѕР·РґР°С‚СЊ С‚СЂРµС‚РёР№ РјР°СЃСЃРёРІ РјРёРЅРёРјР°Р»СЊРЅРѕ РІРѕР·РјРѕР¶РЅРѕРіРѕ СЂР°Р·РјРµСЂР°, РІ РєРѕС‚РѕСЂРѕРј РЅСѓР¶РЅРѕ СЃРѕР±СЂР°С‚СЊ СЌР»РµРјРµРЅС‚С‹ РѕР±РѕРёС… РјР°СЃСЃРёРІРѕРІ.
 */
 
-int* create_set(int* a, int* b, int n, int m, int* size);
-void qsort(int* arr, int n);
+//Fills an array with random() numbers
+void fill_rand(int* arr, int length, int left, int right);
+
+//Prints the elements of the array separated by a space in one line
+void print_arr(int* arr, int size);
+
+//Create set of elements from array
+void create_set(int* arr, int* size);
 
 void main()
 {
 	setlocale(LC_CTYPE, "Rus");
 
 	int n, m;
-	cout << "Введите размеры n, m: ";
+	cout << "Р’РІРµРґРёС‚Рµ СЂР°Р·РјРµСЂС‹ n, m: ";
 	cin >> n >> m;
 
 	int* a = new int[n];
 	int* b = new int[m];
 
-	fill_rand(a, n, 0, 100);
-	cout << "Массив A:" << endl;
+	fill_rand(a, n, 0, 10);
+	cout << "РњР°СЃСЃРёРІ A:" << endl;
 	print_arr(a, n);
 	cout << endl;
 
-	fill_rand(b, m, 0, 100);
-	cout << "Массив B:" << endl;
+	fill_rand(b, m, 0, 10);
+	cout << "РњР°СЃСЃРёРІ B:" << endl;
 	print_arr(b, m);
 	cout << endl;
 
-	int size;
-	int* c = create_set(a, b, n, m, &size);
+	int size = n + m;
+	int* c = new int[size];
 
-	cout << "Уникальные элементы обоих массивов: " << endl;
+	int i = 0, j = 0;
+
+	for (i = 0; i < n; i++)
+	{
+		c[j++] = a[i];
+	}
+
+	for (i = 0; i < m; i++)
+	{
+		c[j++] = b[i];
+	}
+
+	create_set(c, &size);
+
+	cout << "РЈРЅРёРєР°Р»СЊРЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ РѕР±РѕРёС… РјР°СЃСЃРёРІРѕРІ: " << endl;
 	print_arr(c, size);
 	cout << endl;
 
@@ -43,91 +62,43 @@ void main()
 	system("pause");
 }
 
-int* create_set(int* a, int* b, int n, int m, int* size)
+void create_set(int* arr, int* size)
 {
-	qsort(a, n);
-	qsort(b, m);
-	int* tmp = new int[n + m];
-	*size = 0;
-	int i = 0, j = 0;
+	int i, j;
 
-	tmp[(*size)++] = a[i] < b[j] ? a[i++] : b[j++];
+	int new_size = 1;
 
-	while (i < n || j < m)
-	{
-		if (i < n)
+	for (i = 1; i< *size; i++) {
+
+		for (j = 0; j< new_size; j++)
 		{
-			while (a[i] == tmp[*size - 1]) i++;
-		}
-		if (j < m)
-		{
-			while (b[j] == tmp[*size - 1]) j++;
+
+			if (arr[i] == arr[j])
+				break;
 		}
 
-		if (i < n && j < m)
-		{
-			if (a[i] < b[j] && a[i] != tmp[*size - 1])
-			{
-				tmp[(*size)++] = a[i++];
-			}
-			else if (b[j] < a[i] && b[j] != tmp[*size - 1])
-			{
-				tmp[(*size)++] = b[j++];
-			}
-			else if (a[i] == b[j] && a[i] != tmp[*size - 1])
-			{
-				tmp[(*size)++] = a[i++];
-				j++;
-			}
-			else
-			{
-				i++;
-				j++;
-			}
-		}
-		else if (i < n)
-		{
-			tmp[(*size)++] = a[i++];
-		}
-		else if (j < m)
-		{
-			tmp[(*size)++] = b[j++];
-		}
+		/* if none of the values in index[0..j] of array is not same as array[i],
+		then copy the current value to corresponding new position in array */
+
+		if (j == new_size)
+			arr[new_size++] = arr[i];
 	}
-
-	int* result = new int[*size];
-	for (int i = 0; i < *size; i++)
-	{
-		result[i] = tmp[i];
-	}
-	delete[] tmp;
-	return result;
+	*size = new_size;
 }
 
-void qsort(int* arr, int n)
+void fill_rand(int * arr, int length, int left, int right)
 {
-	int l = 0, r = n - 1;
-	int m = *(arr + n / 2);
-	int tmp;
-
-	do
+	for (int i = 0; i < length; i++)
 	{
-		while (*(arr + l) < m) l++;
-		while (*(arr + r) > m) r--;
-
-		if (l <= r)
-		{
-			tmp = *(arr + l);
-			*(arr + l) = *(arr + r);
-			*(arr + r) = tmp;
-			l++;
-			r--;
-		}
+		*(arr + i) = rand() % (right - left + 1) + left;
 	}
-	while (l <= r);
-
-
-	if (r > 0) qsort(arr, r + 1);
-	if (n > l) qsort(arr + l, n - l);
 }
 
+void print_arr(int * arr, int size)
+{
+	for (int i = 0; i < size; i++)
+	{
+		std::cout << arr[i] << " ";
+	}
+	cout << endl;
+}
