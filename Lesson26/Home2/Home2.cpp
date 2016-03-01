@@ -1,17 +1,22 @@
-#include <iostream>
-#include "functions.h"
+п»ї#include <iostream>
 using namespace std;
 
 /*
-2.	Написать функцию, которая получает указатель на массив и его размер, и возвращает количество отрицательных, положительных и нулевых элементов массива.
+2.	РќР°РїРёСЃР°С‚СЊ С„СѓРЅРєС†РёСЋ, РєРѕС‚РѕСЂР°СЏ РїРѕР»СѓС‡Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РјР°СЃСЃРёРІ Рё РµРіРѕ СЂР°Р·РјРµСЂ, Рё РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹С…, РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹С… Рё РЅСѓР»РµРІС‹С… СЌР»РµРјРµРЅС‚РѕРІ РјР°СЃСЃРёРІР°.
 */
+
+//Р—Р°РїРѕР»РЅСЏРµС‚ РјР°СЃСЃРёРІ РїСЃРµРІРґРѕ-СЃР»СѓС‡Р°Р№РЅС‹РјРё С‡РёСЃР»Р°РјРё РІ Р·Р°РґР°РЅРЅРѕРј РґРёР°РїР°Р·РѕРЅРµ
+void fill_rand(int* arr, int length, int left, int right);
+
+//Р’С‹РІРѕРґРёС‚ СЌР»РµРјРµРЅС‚С‹ РјР°СЃСЃРёРІР° СЂР°Р·РґРµР»РµРЅРЅС‹Рµ РїСЂРѕР±РµР»Р°РјРё РІ РѕРґРЅСѓ Р»РёРЅРёСЋ
+void print_arr(int* arr, int size);
 
 void func(int *arr, int size, int *negative, int *zero, int *positive);
 
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	int size = 10;
 	int *arr = new int[size];
@@ -22,10 +27,10 @@ void main() {
 	int negative, zero, positive;
 	func(arr, size, &negative, &zero, &positive);
 
-	cout << "Количество элементов: " << endl
-		<< "Отрицательных = " << negative << endl
-		<< "Положительных = " << positive << endl
-		<< "Нулевых = " << zero << endl;
+	cout << "РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ: " << endl
+		<< "РћС‚СЂРёС†Р°С‚РµР»СЊРЅС‹С… = " << negative << endl
+		<< "РџРѕР»РѕР¶РёС‚РµР»СЊРЅС‹С… = " << positive << endl
+		<< "РќСѓР»РµРІС‹С… = " << zero << endl;
 
 	delete[] arr;
 
@@ -42,4 +47,21 @@ void func(int * arr, int size, int * negative, int * zero, int * positive)
 		else if (arr[i] > 0) (*positive)++;
 		else (*zero)++;
 	}
+}
+
+void fill_rand(int* arr, int length, int left, int right)
+{
+	for (int i = 0; i < length; i++)
+	{
+		*(arr + i) = rand() % (right - left + 1) + left;
+	}
+}
+
+void print_arr(int* arr, int size)
+{
+	for (int i = 0; i < size; i++)
+	{
+		std::cout << arr[i] << " ";
+	}
+	cout << endl;
 }

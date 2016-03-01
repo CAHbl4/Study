@@ -1,17 +1,23 @@
-#include <iostream>
+п»ї#include <iostream>
 #include "functions.h"
 using namespace std;
 
 /*
-1.	Написать функцию, которая получает указатель на массив и его размер, и возвращает сумму и произведение его элементов в двух параметрах-указателях.
+1.	РќР°РїРёСЃР°С‚СЊ С„СѓРЅРєС†РёСЋ, РєРѕС‚РѕСЂР°СЏ РїРѕР»СѓС‡Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РјР°СЃСЃРёРІ Рё РµРіРѕ СЂР°Р·РјРµСЂ, Рё РІРѕР·РІСЂР°С‰Р°РµС‚ СЃСѓРјРјСѓ Рё РїСЂРѕРёР·РІРµРґРµРЅРёРµ РµРіРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РґРІСѓС… РїР°СЂР°РјРµС‚СЂР°С…-СѓРєР°Р·Р°С‚РµР»СЏС….
 */
+
+//Р—Р°РїРѕР»РЅСЏРµС‚ РјР°СЃСЃРёРІ РїСЃРµРІРґРѕ-СЃР»СѓС‡Р°Р№РЅС‹РјРё С‡РёСЃР»Р°РјРё РІ Р·Р°РґР°РЅРЅРѕРј РґРёР°РїР°Р·РѕРЅРµ
+void fill_rand(int* arr, int length, int left, int right);
+
+//Р’С‹РІРѕРґРёС‚ СЌР»РµРјРµРЅС‚С‹ РјР°СЃСЃРёРІР° СЂР°Р·РґРµР»РµРЅРЅС‹Рµ РїСЂРѕР±РµР»Р°РјРё РІ РѕРґРЅСѓ Р»РёРЅРёСЋ
+void print_arr(int* arr, int size);
 
 void sum_mult(int *arr, int size, int *sum, int *mult);
 
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	int size = 10;
 	int *arr = (int*) malloc(sizeof(int) * size);
@@ -22,8 +28,8 @@ void main() {
 	int sum, mult;
 	sum_mult(arr, size, &sum, &mult);
 
-	cout << "Сумма = " << sum
-		<< ", произведение = " << mult;
+	cout << "РЎСѓРјРјР° = " << sum
+		<< ", РїСЂРѕРёР·РІРµРґРµРЅРёРµ = " << mult;
 
 	free(arr);
 	cout << endl;
@@ -39,4 +45,21 @@ void sum_mult(int * arr, int size, int * sum, int * mult)
 		*sum += arr[i];
 		*mult *= arr[i];
 	}
+}
+
+void fill_rand(int* arr, int length, int left, int right)
+{
+	for (int i = 0; i < length; i++)
+	{
+		*(arr + i) = rand() % (right - left + 1) + left;
+	}
+}
+
+void print_arr(int* arr, int size)
+{
+	for (int i = 0; i < size; i++)
+	{
+		std::cout << arr[i] << " ";
+	}
+	cout << endl;
 }
