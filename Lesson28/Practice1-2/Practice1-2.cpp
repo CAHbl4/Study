@@ -30,7 +30,7 @@ int is_prime(int a);
 void print_primes(int* arr, int size);
 
 
-void main()
+int main(void)
 {
 
 	//Здесь будем хранить количество введеных элементов
@@ -48,6 +48,7 @@ void main()
 	//Выводим на экран все простые числа
 	printf(Rus("Простые числа:\n"));
 	print_primes(arr, n);
+	return 0;
 }
 
 /*
