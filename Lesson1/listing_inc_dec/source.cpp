@@ -1,11 +1,11 @@
-#include <stdio.h>
+п»ї#include <stdio.h>
 #include <conio.h>
 #include <iostream>
 
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	int a, b;
 	a = 10; b = 5;

@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 
 using namespace std;
 
@@ -9,12 +9,12 @@ void main() {
 
 	*/
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	int a[100];
 	int n;
 
-	cout << "Сколько элементов массива: ";
+	cout << "РЎРєРѕР»СЊРєРѕ СЌР»РµРјРµРЅС‚РѕРІ РјР°СЃСЃРёРІР°: ";
 	cin >> n;
 	for (int i = 0; i < n; i++) {
 		cout << "A[" << i << "] = ";

@@ -1,8 +1,8 @@
-#include <iostream>
+п»ї#include <iostream>
 using namespace std;
 
 /*
-1.	Написать функцию, которая возвращает куб числа.
+1.	РќР°РїРёСЃР°С‚СЊ С„СѓРЅРєС†РёСЋ, РєРѕС‚РѕСЂР°СЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РєСѓР± С‡РёСЃР»Р°.
 */
 
 int cube(int a);
@@ -10,13 +10,13 @@ int cube(int a);
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	int a;
-	cout << "Введите число: ";
+	cout << "Р’РІРµРґРёС‚Рµ С‡РёСЃР»Рѕ: ";
 	cin >> a;
 
-	cout << "Куб числа = " << cube(a);
+	cout << "РљСѓР± С‡РёСЃР»Р° = " << cube(a);
 
 	cout << endl;
 	system("pause");

@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 
 using namespace std;
 
@@ -6,10 +6,10 @@ void main() {
 	setlocale(LC_CTYPE, "Rus");
 
 	/*
-	Сортировка пузырьком
+	РЎРѕСЂС‚РёСЂРѕРІРєР° РїСѓР·С‹СЂСЊРєРѕРј
 	*/
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	const int LEN = 10;
 	int arr[LEN] = { 9, 15, 8, 99, 87, 56, 13, 41, 0, 7 };

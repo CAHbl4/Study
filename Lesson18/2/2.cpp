@@ -1,8 +1,8 @@
-#include <iostream>
+п»ї#include <iostream>
 using namespace std;
 
 /*
-Заполнить массив размером 7?7 по правилу:
+Р—Р°РїРѕР»РЅРёС‚СЊ РјР°СЃСЃРёРІ СЂР°Р·РјРµСЂРѕРј 7?7 РїРѕ РїСЂР°РІРёР»Сѓ:
 1 1 1 1 1 1 1
 0 1 1 1 1 1 0
 0 0 1 1 1 0 0
@@ -16,7 +16,7 @@ using namespace std;
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	const int N = 7;
 	int arr[N][N];

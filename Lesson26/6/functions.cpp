@@ -1,4 +1,4 @@
-#include <cstdlib>
+﻿#include <cstdlib>
 
 void fill_rand(int * arr, int length, int left, int right)
 {

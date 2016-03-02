@@ -1,8 +1,8 @@
-#include <iostream>
+п»ї#include <iostream>
 using namespace std;
 
 /*
-Описать функцию Leng(xA, yA, xB, yB) вещественного типа, находящую длину отрезка AB на плоскости по координатам его концов.
+РћРїРёСЃР°С‚СЊ С„СѓРЅРєС†РёСЋ Leng(xA, yA, xB, yB) РІРµС‰РµСЃС‚РІРµРЅРЅРѕРіРѕ С‚РёРїР°, РЅР°С…РѕРґСЏС‰СѓСЋ РґР»РёРЅСѓ РѕС‚СЂРµР·РєР° AB РЅР° РїР»РѕСЃРєРѕСЃС‚Рё РїРѕ РєРѕРѕСЂРґРёРЅР°С‚Р°Рј РµРіРѕ РєРѕРЅС†РѕРІ.
 
 */
 
@@ -11,16 +11,16 @@ double length(int x1, int y1, int x2, int y2);
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 	int x1, y1, x2, y2;
-	cout << "Введите x1, y1, x2, y2: ";
+	cout << "Р’РІРµРґРёС‚Рµ x1, y1, x2, y2: ";
 
 	cin >> x1 >> y1 >> x2 >> y2 ;
 	try {
 		if (cin.fail()) {
 			throw "error";
 		}
-		cout << "Длинна отрезка: " << length(x1, y1, x2, y2);
+		cout << "Р”Р»РёРЅРЅР° РѕС‚СЂРµР·РєР°: " << length(x1, y1, x2, y2);
 	}
 	catch (char* error) {
 		cout << error << endl;

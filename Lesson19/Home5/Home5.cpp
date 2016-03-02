@@ -1,8 +1,8 @@
-#include <iostream>
+п»ї#include <iostream>
 using namespace std;
 
 /*
-5.	Написать функцию, выводящую на экран прямоугольник с высотой N и шириной K.
+5.	РќР°РїРёСЃР°С‚СЊ С„СѓРЅРєС†РёСЋ, РІС‹РІРѕРґСЏС‰СѓСЋ РЅР° СЌРєСЂР°РЅ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє СЃ РІС‹СЃРѕС‚РѕР№ N Рё С€РёСЂРёРЅРѕР№ K.
 */
 
 void rect(int width, int height);
@@ -10,12 +10,12 @@ void rect(int width, int height);
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 	int width, height;
 
-	cout << "Введите ширину: ";
+	cout << "Р’РІРµРґРёС‚Рµ С€РёСЂРёРЅСѓ: ";
 	cin >> width;
-	cout << "Введите высоту: ";
+	cout << "Р’РІРµРґРёС‚Рµ РІС‹СЃРѕС‚Сѓ: ";
 	cin >> height;
 
 	rect(width, height);

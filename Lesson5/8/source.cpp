@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <bitset>
 
 using namespace std;
@@ -6,7 +6,7 @@ using namespace std;
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 	int i, x;
 
 	for (i = -16; i < 16; i++) {

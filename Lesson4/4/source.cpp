@@ -1,11 +1,11 @@
-#include <iostream>
+п»ї#include <iostream>
 
 using namespace std;
 
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	int a = 50, b = 25;
 	float c = 50.0, d = 25.0;

@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 
 using namespace std;
 
@@ -6,15 +6,15 @@ void main() {
 	setlocale(LC_CTYPE, "Rus");
 
 	/*
-	Вывести на экран кубы чисел от A до B.
+	Р’С‹РІРµСЃС‚Рё РЅР° СЌРєСЂР°РЅ РєСѓР±С‹ С‡РёСЃРµР» РѕС‚ A РґРѕ B.
 
 	*/
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	int a, b;
 
-	cout << "Введите A и B: ";
+	cout << "Р’РІРµРґРёС‚Рµ A Рё B: ";
 	if (cin >> a >> b) {
 		cout << "A\tA^3" << endl;
 		for (; a <= b; a++) {
@@ -22,7 +22,7 @@ void main() {
 		}
 	}
 	else {
-		cout << "Ошибка ввода";
+		cout << "РћС€РёР±РєР° РІРІРѕРґР°";
 	}
 
 

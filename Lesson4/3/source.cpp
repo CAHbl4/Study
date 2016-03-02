@@ -1,13 +1,13 @@
-#include <iostream>
+п»ї#include <iostream>
 
 using namespace std;
 
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
-	bool boolean = 25; // переменная типа bool с именем boolean
+	bool boolean = 25; // РїРµСЂРµРјРµРЅРЅР°СЏ С‚РёРїР° bool СЃ РёРјРµРЅРµРј boolean
 	if (boolean)
 		cout << "true = " << boolean << endl;
 	else

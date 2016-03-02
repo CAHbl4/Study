@@ -1,9 +1,9 @@
-#include <iostream>
+ο»Ώ#include <iostream>
 #include <stdio.h>
 #include <conio.h>
 
 void main() {
 	setlocale(LC_CTYPE, "Rus");
-	printf("Ηδερό αϋλ Βΰρÿ!");
+	printf("Π—Π΄ΠµΡΡ Π±Ρ‹Π» Π’Π°ΡΡ!");
 	_getch();
 }

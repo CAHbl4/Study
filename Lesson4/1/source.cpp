@@ -1,10 +1,10 @@
-#include <iostream>
+п»ї#include <iostream>
 using namespace std;
 
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	cout << "data type\t" << "size" << endl;
 	cout << "bool=\t\t" << sizeof(bool) << endl;

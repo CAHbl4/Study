@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 using namespace std;
 
 /*
@@ -8,7 +8,7 @@ using namespace std;
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	int const N = 10, M = 10;
 	int arr[N][M];

@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 using namespace std;
 
 /*
@@ -8,16 +8,16 @@ using namespace std;
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
-	int var = 123; // инициализация переменной var числом 123
-	int *ptrvar = &var; // указатель на переменную var
-	int **ptr_ptrvar = &ptrvar; //указатель на указатель на переменную var
+	int var = 123; // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїРµСЂРµРјРµРЅРЅРѕР№ var С‡РёСЃР»РѕРј 123
+	int *ptrvar = &var; // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ var
+	int **ptr_ptrvar = &ptrvar; //СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ var
 	int ***ptr_ptr_ptrvar = &ptr_ptrvar;
 	cout << " var\t\t= " << var << endl;
 	cout << " *ptrvar\t= " << *ptrvar << endl;
-	cout << " **ptr_ptrvar   = " << **ptr_ptrvar << endl;
-	cout << " ***ptr_ptrvar  = " << ***ptr_ptr_ptrvar << endl;
+	cout << " **ptr_ptrvarВ В  = " << **ptr_ptrvar << endl;
+	cout << " ***ptr_ptrvarВ  = " << ***ptr_ptr_ptrvar << endl;
 
 	system("pause");
 }

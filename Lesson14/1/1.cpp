@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 
 using namespace std;
 
@@ -9,7 +9,7 @@ void main() {
 
 	*/
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 	int a[5] = { 1, 3, 5, 8, 15 };
 	int sum = 0;

@@ -1,9 +1,9 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <math.h>
 using namespace std;
 
 /*
-Вычислить, используя рекурсию, выражение
+Р’С‹С‡РёСЃР»РёС‚СЊ, РёСЃРїРѕР»СЊР·СѓСЏ СЂРµРєСѓСЂСЃРёСЋ, РІС‹СЂР°Р¶РµРЅРёРµ
 
 */
 
@@ -12,7 +12,7 @@ double func(int a);
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
 
 	cout << func(6);

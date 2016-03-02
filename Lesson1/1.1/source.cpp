@@ -1,13 +1,13 @@
-#include <stdio.h>
+п»ї#include <stdio.h>
 #include <conio.h>
 #include <iostream>
 
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 
-	printf("Вася\n\tпошел\n\t\tгулять\n");
+	printf("Р’Р°СЃСЏ\n\tРїРѕС€РµР»\n\t\tРіСѓР»СЏС‚СЊ\n");
 
 	_getch();
 }

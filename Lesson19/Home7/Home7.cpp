@@ -1,8 +1,8 @@
-#include <iostream>
+п»ї#include <iostream>
 using namespace std;
 
 /*
-7.	Написать функцию, вычисляющую факториал переданного ей числа.
+7.	РќР°РїРёСЃР°С‚СЊ С„СѓРЅРєС†РёСЋ, РІС‹С‡РёСЃР»СЏСЋС‰СѓСЋ С„Р°РєС‚РѕСЂРёР°Р» РїРµСЂРµРґР°РЅРЅРѕРіРѕ РµР№ С‡РёСЃР»Р°.
 */
 
 unsigned long long fact(int a);
@@ -10,9 +10,9 @@ unsigned long long fact(int a);
 void main() {
 	setlocale(LC_CTYPE, "Rus");
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 	int a;
-	cout << "Введите число: ";
+	cout << "Р’РІРµРґРёС‚Рµ С‡РёСЃР»Рѕ: ";
 	cin >> a;
 	cout << "!" << a << " = " << fact(a);
 

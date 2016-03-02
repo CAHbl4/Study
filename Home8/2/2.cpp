@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 
 using namespace std;
 
@@ -6,31 +6,31 @@ void main() {
 	setlocale(LC_CTYPE, "Rus");
 
 	/*
-	Написать программу, которая по введенному пользователем числу выводит название дня недели.
-	Проверять корректность ввода данных.
+	РќР°РїРёСЃР°С‚СЊ РїСЂРѕРіСЂР°РјРјСѓ, РєРѕС‚РѕСЂР°СЏ РїРѕ РІРІРµРґРµРЅРЅРѕРјСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј С‡РёСЃР»Сѓ РІС‹РІРѕРґРёС‚ РЅР°Р·РІР°РЅРёРµ РґРЅСЏ РЅРµРґРµР»Рё.
+	РџСЂРѕРІРµСЂСЏС‚СЊ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РІРІРѕРґР° РґР°РЅРЅС‹С….
 
 	*/
 
-	//Код программы
+	//РљРѕРґ РїСЂРѕРіСЂР°РјРјС‹
 	enum days { mon = 1, tue, wed, thu, fri, sat, sun};
 	int d;
-	cout << "Введите номер дня: ";
+	cout << "Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ РґРЅСЏ: ";
 	if (cin >> d) {
 		if (d && d <= 7) {
 			switch (d)
 			{
-			case mon: cout << "Понедельник"; break;
-			case tue: cout << "Вторник"; break;
-			case wed: cout << "Среда"; break;
-			case thu: cout << "Четверг"; break;
-			case fri: cout << "Пятница"; break;
-			case sat: cout << "Суббота"; break;
-			case sun: cout << "Воскресенье"; break;
+			case mon: cout << "РџРѕРЅРµРґРµР»СЊРЅРёРє"; break;
+			case tue: cout << "Р’С‚РѕСЂРЅРёРє"; break;
+			case wed: cout << "РЎСЂРµРґР°"; break;
+			case thu: cout << "Р§РµС‚РІРµСЂРі"; break;
+			case fri: cout << "РџСЏС‚РЅРёС†Р°"; break;
+			case sat: cout << "РЎСѓР±Р±РѕС‚Р°"; break;
+			case sun: cout << "Р’РѕСЃРєСЂРµСЃРµРЅСЊРµ"; break;
 			}
 		}
-		else cout << "В неделе 7 дней";
+		else cout << "Р’ РЅРµРґРµР»Рµ 7 РґРЅРµР№";
 	}
-	else cout << "Ошибка ввода";
+	else cout << "РћС€РёР±РєР° РІРІРѕРґР°";
 
 
 
