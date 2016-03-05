@@ -18,16 +18,16 @@
 char* Rus(const char* text);
 
 //Чтение массива с клавиатуры
-int read_array(int* arr, int size);
+int read_array(int *arr, int n);
 
 //Вывод массива на экран
-void print_array(int* arr, int size);
+void print_array(int *arr, int n);
 
 //Определение является ли число простым
 int is_prime(int a);
 
 //Вывод всех простых чисел на экран
-void print_primes(int* arr, int size);
+void print_primes(int *arr, int n);
 
 
 int main(void)
@@ -39,15 +39,16 @@ int main(void)
 	int arr[SIZE];
 
 	//Читаем с клавиатуры элементы массива и сохраняем их количество
-	n = read_array(arr, SIZE);
+	if ((n = read_array(arr, SIZE))) {
 
-	//Выводим на экран исходный массив
-	printf(Rus("Исходный массив:\n"));
-	print_array(arr, n);
+		//Выводим на экран исходный массив
+		printf(Rus("Исходный массив:\n"));
+		print_array(arr, n);
 
-	//Выводим на экран все простые числа
-	printf(Rus("Простые числа:\n"));
-	print_primes(arr, n);
+		//Выводим на экран все простые числа
+		printf(Rus("Простые числа:\n"));
+		print_primes(arr, n);
+	}
 	return 0;
 }
 
@@ -57,15 +58,15 @@ int main(void)
 * Читает целые числа с клавиатуры и сохраняет их в массив
 *
 *  arr:		массив для сохранения
-*  size:	размер массива
+*  n:		размер массива
 *
 *  returns: количество сохраненных элементов
 */
-int read_array(int *arr, int size)
+int read_array(int *arr, int n)
 {
 	int num, ch, i = 0;
 
-	printf(Rus("Вводите целые числа до заполнения массива или s для завершения ввода. Размер массива: %d\n"), size);
+	printf(Rus("Вводите целые числа до заполнения массива или s для завершения ввода. Размер массива: %d\n"), n);
 
 	// i != size
 	do
@@ -86,7 +87,7 @@ int read_array(int *arr, int size)
 			}
 			printf(Rus("%c - некорректный символ, вводите целые числа.\n"), ch);
 		}
-	} while (i != size);
+	} while (i != n);
 
 	return i;
 }
@@ -96,7 +97,7 @@ int read_array(int *arr, int size)
 * --------------------
 * Проверяет является ли число простым
 *
-*  n:	число для проверки
+*  n:		число для проверки
 *
 *  returns: 1 если число простое и 0 если нет
 */
@@ -122,10 +123,21 @@ int is_prime(int n)
 */
 void print_primes(int *arr, int n)
 {
-	int i;
-	for (i = 0; i < n; i++)
+	int i, have_primes = 0;
+	if (n > 0) {
+		for (i = 0; i < n; i++)
+		{
+			if (is_prime(*(arr + i)))
+			{
+				have_primes = 1;
+				printf("%d ", *(arr + i));
+			}
+		}
+		if (!have_primes) printf(Rus("В массиве нет простых чисел"));
+	}
+	else
 	{
-		if (is_prime(*(arr + i))) printf("%d ", *(arr + i));
+		printf(Rus("Неверный размер массива"));
 	}
 	printf("\n");
 }
@@ -139,12 +151,18 @@ void print_primes(int *arr, int n)
 *  n:		количество элементов
 *
 */
-void print_array(int *arr, int size)
+void print_array(int *arr, int n)
 {
 	int i;
-	for (i = 0; i < size; i++)
+	if (n > 0) {
+		for (i = 0; i < n; i++)
+		{
+			printf("%d ", *(arr + i));
+		}
+	}
+	else
 	{
-		printf("%d ", *(arr + i));
+		printf(Rus("Неверный размер массива"));
 	}
 	printf("\n");
 }
