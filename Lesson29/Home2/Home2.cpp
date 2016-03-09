@@ -14,26 +14,53 @@
 * amatu, 09.03.2016 11:12:27
 */
 
-char* Rus(const char* text);
-void read_array(int* arr, int N);
-void print_array(int* arr, int N);
-int func(int* arr, int N);
-void fill_rand(int * arr, int length, int left, int right);
+//Битовые маски для зон матрицы
+#define MAIN_DIAG			1
+#define SEC_DIAG			2
+#define MAIN_DIAG_UP		4
+#define MAIN_DIAG_DOWN		8
+#define SEC_DIAG_UP			16
+#define SEC_DIAG_DOWN		32
+
+//Настраиваемые параметры задания
+#define MAX_SIZE			7
+#define MIN_SIZE			4
+#define TASK_ZONE			SEC_DIAG_UP
+
+//Настройки вывода
+#define PRINT_WIDTH			3
+#define HIGLIGHT_COLOR		FOREGROUND_RED | FOREGROUND_INTENSITY
+
+
+
+char*	Rus(const char* text);
+void	read_array(int* arr, int n);
+void	print_array(int arr[][MAX_SIZE], int n, int zone, int width = PRINT_WIDTH);
+int		get_zone(int i, int j, int n);
+int		func(int arr[][MAX_SIZE], int n, int zone);
+void	fill_rand(int arr[][MAX_SIZE], int length, int left, int right);
+
+//Переменные для настройки консоли
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+WORD currentConsoleAttr = 0;
+CONSOLE_SCREEN_BUFFER_INFO csbi;
 
 void main() {
+	//Записываем текущие параметры консоли
+	if (GetConsoleScreenBufferInfo(hConsole, &csbi))
+		currentConsoleAttr = csbi.wAttributes;
 
-	//Code goes here
-	size_t N;
-	scanf("%d", &N);
+	static int arr[MAX_SIZE][MAX_SIZE];
 
-	int *parr = (int*)calloc(N * N, sizeof(int));
+	unsigned int n;
+	printf(Rus("Введите размер матрицы N = "));
+	scanf("%d", &n);
 
-	fill_rand(parr, N*N, -10, 10);
-	print_array(parr, N);
+	fill_rand(arr, n*n, -10, 10);
 
-	printf(Rus("Сумму квадратов отрицательных чисел = %d"), func(parr, N));
-
-	free(parr);
+	print_array(arr, n, TASK_ZONE);
+	int sum = func(arr, n, TASK_ZONE);
+	printf(Rus("Сумма квадратов отрицательных чисел = %d"), sum);
 	
 }
 
@@ -45,40 +72,69 @@ char* Rus(const char* text)
 	return bufRus;
 }
 
-void print_array(int * arr, int N)
+void print_array(int arr[][MAX_SIZE], int n, int highlight, int width)
 {
-	for (int i = 0; i < N; ++i)
+	int i, j;
+	for (i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < N; ++j)
+		for (j = 0; j < n; ++j)
 		{
-			printf("%5d", *(arr + i*N + j));
+			if (get_zone(i,j,n) & highlight)
+			{
+				SetConsoleTextAttribute(hConsole, HIGLIGHT_COLOR);
+				printf("%*d", width, arr[i][j]);
+				SetConsoleTextAttribute(hConsole, currentConsoleAttr);
+			} else
+				printf("%*d", width, arr[i][j]);
 		}
 		printf("\n");
 	}
 }
 
-int func(int * arr, int N)
+int get_zone(int i, int j, int n)
 {
-	long long sum = 0;
-	for (int i = 0; i < N; ++i)
+	int result = 0;
+	if (i == j) 
+		result += MAIN_DIAG;
+	if (i > j)
+		result += MAIN_DIAG_UP;
+	if (i < j)
+		result += MAIN_DIAG_DOWN;
+	if (i + j == n - 1)
+		result += SEC_DIAG;
+	if (i + j < n - 1)
+		result += SEC_DIAG_UP;
+	if (i + j > n - 1)
+		result += SEC_DIAG_DOWN;
+	return result;
+}
+
+int func(int arr[][MAX_SIZE], int n, int zone)
+{
+	long sum = 0;
+	int i, j;
+	for (i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < N; ++j)
+		for (j = 0; j < n; ++j)
 		{
-			if(i + j + 1 < N )
+			if(zone & get_zone(i,j,n))
 			{
-				printf("arr[%d][%d] = %d\n", i, j, *(arr + i*N + j));
-				if (*(arr + i*N + j) < 0)
-					sum += pow(*(arr + i*N + j), 2);
+				if (arr[i][j] < 0)
+					sum += pow(arr[i][j], 2);
 			}
 		}
 	}
 	return sum;
 }
 
-void fill_rand(int * arr, int length, int left, int right)
+void fill_rand(int arr[][MAX_SIZE], int n, int left, int right)
 {
-	for (int i = 0; i < length; i++)
+	int i, j;
+	for (i = 0; i < n; ++i)
 	{
-		*(arr + i) = rand() % (right - left + 1) + left;
+		for (j = 0; j < n; ++j)
+		{
+			arr[i][j] = rand() % (right - left + 1) + left;
+		}
 	}
 }
