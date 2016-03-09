@@ -9,7 +9,7 @@
 * Программа должна выполнять ввод и вывод матрицы и
 * дополнительных данных, выполнять необходимые действия и выводить
 * результаты.
-* Первый вариант решения - обычная адресация элементов массива;
+* Второй вариант - адресация через указатели
 *
 * a.matuzov, 09.03.2016 11:12:27
 */
@@ -32,9 +32,9 @@
 
 
 //Объявления функций
-UINT8	read_array	(int arr[][MAX_SIZE], size_t n);
-void	print_array	(int arr[][MAX_SIZE], size_t n, UINT16 zone, short width);
-UINT64	func_v13	(int arr[][MAX_SIZE], size_t n, UINT16 zone);
+UINT8	read_array	(int *arr, size_t n);
+void	print_array	(int *arr, size_t n, UINT16 zone, short width);
+UINT64	func_v13	(int *arr, size_t n, UINT16 zone);
 UINT16	get_zone	(size_t i, size_t j, size_t n);
 int		read_int	();
 char*	Rus			(const char* text);
@@ -68,13 +68,13 @@ void main()
 
 	//Заполняем матрицу
 	printf(Rus("Вводите элементы массива до заполнения\n"));
-	short width = read_array(arr, n);
+	short width = read_array(arr[0], n);
 
 	//Выводим матрицу
-	print_array(arr, n, TASK_ZONE, width);
+	print_array(arr[0], n, TASK_ZONE, width);
 
 	//Считаем значение из задания
-	UINT64 sum = func_v13(arr, n, TASK_ZONE);
+	UINT64 sum = func_v13(arr[0], n, TASK_ZONE);
 
 	printf(Rus("Сумма квадратов отрицательных чисел = %d\n"), sum);
 }
@@ -90,7 +90,7 @@ void main()
 *
 *  returns: Размер самого длинного элемента + 1
 */
-UINT8 read_array(int arr[][MAX_SIZE], size_t n)
+UINT8 read_array(int *arr, size_t n)
 {
 	size_t i, j;
 	UINT8 tmp = 0, width = 1;
@@ -99,11 +99,11 @@ UINT8 read_array(int arr[][MAX_SIZE], size_t n)
 		for (j = 0; j < n; ++j)
 		{
 			printf("arr[%d][%d]: ", i, j);
-			arr[i][j] = read_int();
-			if (arr[i][j])
+			*(arr + i * MAX_SIZE + j) = read_int();
+			if (*(arr + i * MAX_SIZE + j))
 			{
-				tmp = (UINT8)(floor(log10(abs(arr[i][j]))) + 1);
-				if (arr[i][j] < 0)
+				tmp = (UINT8)(floor(log10(abs(*(arr + i * MAX_SIZE + j)))) + 1);
+				if (*(arr + i * MAX_SIZE + j) < 0)
 					++tmp;
 			}
 			if (tmp > width)
@@ -124,7 +124,7 @@ UINT8 read_array(int arr[][MAX_SIZE], size_t n)
 *  zone:	Участок для подсветки в виде битовой маски
 *  width:	Ширина ячеек
 */
-void print_array(int arr[][MAX_SIZE], size_t n, UINT16 zone, short width)
+void print_array(int* arr, size_t n, UINT16 zone, short width)
 {
 	size_t i, j;
 	for (i = 0; i < n; ++i)
@@ -134,11 +134,11 @@ void print_array(int arr[][MAX_SIZE], size_t n, UINT16 zone, short width)
 			if (get_zone(i, j, n) & zone)
 			{
 				SetConsoleTextAttribute(hConsole, HIGHLIGHT_COLOR);
-				printf("%*d", width, arr[i][j]);
+				printf("%*d", width, *(arr + i * MAX_SIZE + j));
 				SetConsoleTextAttribute(hConsole, currentConsoleAttr);
 			}
 			else
-				printf("%*d", width, arr[i][j]);
+				printf("%*d", width, *(arr + i * MAX_SIZE + j));
 		}
 		printf("\n");
 	}
@@ -156,7 +156,7 @@ void print_array(int arr[][MAX_SIZE], size_t n, UINT16 zone, short width)
 *
 *  returns:	сумму квадратов отрицательных чисел
 */
-UINT64 func_v13(int arr[][MAX_SIZE], size_t n, UINT16 zone)
+UINT64 func_v13(int* arr, size_t n, UINT16 zone)
 {
 	UINT64 sum = 0;
 	size_t i, j;
@@ -166,8 +166,8 @@ UINT64 func_v13(int arr[][MAX_SIZE], size_t n, UINT16 zone)
 		{
 			if (zone & get_zone(i, j, n))
 			{
-				if (arr[i][j] < 0)
-					sum += (UINT64)pow(arr[i][j], 2);
+				if (*(arr + i * MAX_SIZE + j) < 0)
+					sum += (UINT64)pow(*(arr + i * MAX_SIZE + j), 2);
 			}
 		}
 	}
