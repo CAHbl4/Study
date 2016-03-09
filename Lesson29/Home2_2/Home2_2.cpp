@@ -56,11 +56,11 @@ void main()
 	static int arr[MAX_SIZE][MAX_SIZE];
 
 	//Читаем с клавиатуры размер матрицы
-	UINT8 n;
+	size_t n;
 	printf(Rus("Введите размер матрицы (%d...%d). N: "), MIN_SIZE, MAX_SIZE);
 	do
 	{
-		n = (UINT8)read_int();
+		n = (size_t)read_int();
 		if (n < MIN_SIZE || n > MAX_SIZE)
 			printf(Rus("Неверный размер. Размер должен быть в диапазоне "
 				"от %d до %d. Повторите ввод: \n"), MIN_SIZE, MAX_SIZE);
@@ -182,6 +182,7 @@ UINT64 func_v13(int* arr, size_t n, UINT16 zone)
 *
 *  i:		Строка матрицы
 *  j:		Столбец матрицы
+*  n:		Порядок матрицы
 *
 *  returns:	Битовая маска положения
 */
