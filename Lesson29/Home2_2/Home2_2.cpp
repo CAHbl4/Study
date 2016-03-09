@@ -33,7 +33,7 @@
 
 //Объявления функций
 UINT8	read_array	(int *arr, size_t n);
-void	print_array	(int *arr, size_t n, UINT16 zone, short width);
+void	print_array	(int *arr, size_t n, UINT16 zone, UINT8 width);
 UINT64	func_v13	(int *arr, size_t n, UINT16 zone);
 UINT16	get_zone	(size_t i, size_t j, size_t n);
 int		read_int	();
@@ -68,7 +68,7 @@ void main()
 
 	//Заполняем матрицу
 	printf(Rus("Вводите элементы массива до заполнения\n"));
-	short width = read_array(arr[0], n);
+	UINT8 width = read_array(arr[0], n);
 
 	//Выводим матрицу
 	print_array(arr[0], n, TASK_ZONE, width);
@@ -124,7 +124,7 @@ UINT8 read_array(int *arr, size_t n)
 *  zone:	Участок для подсветки в виде битовой маски
 *  width:	Ширина ячеек
 */
-void print_array(int* arr, size_t n, UINT16 zone, short width)
+void print_array(int* arr, size_t n, UINT16 zone, UINT8 width)
 {
 	size_t i, j;
 	for (i = 0; i < n; ++i)
