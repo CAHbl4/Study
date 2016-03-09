@@ -190,9 +190,9 @@ UINT16 get_zone(size_t i, size_t j, size_t n)
 	UINT16 result = 0;
 	if (i == j)
 		result |= MAIN_DIAG;
-	if (i > j)
-		result |= MAIN_DIAG_UP;
 	if (i < j)
+		result |= MAIN_DIAG_UP;
+	if (i > j)
 		result |= MAIN_DIAG_DOWN;
 	if (i + j == n - 1)
 		result |= SEC_DIAG;
