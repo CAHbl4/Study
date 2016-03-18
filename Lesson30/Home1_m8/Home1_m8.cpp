@@ -15,20 +15,94 @@
 #define MAX_STRINGS		100
 #define MIN_WORDS		5
 #define MIN_CHARS		5
+#define MAX_LENGTH		100
+#define HALT			""
+
+typedef int (*sort_f)(char*, char*);
 
 char* Rus(const char* text);
+int read_str(char **);
+void sort(char ** str, int n, sort_f f);
+
+int char_count(char* str);
+int char_count_comp_ASC(char* l, char* r);
+
+char sort_symbol = 'a';
 
 void main() {
 
 	//Code goes here
+	char ** str = (char**) malloc(sizeof(char*));
+	
+	int count = read_str(str);
 
+	sort_f f = &char_count_comp_ASC;
 
+	int i;
+	for (i = 0; i < count; i++)
+	{
+		puts(*(str + i));
+	}
+
+	sort(str, count, f);
+}
+
+int read_str(char **str)
+{
+
+	int ct = 0;
+	printf(Rus("Введите до %d строк.\n"), MAX_STRINGS);
+	printf(Rus("Для прекращения ввода-<Enter> в начале строки.\n"));
+	*str = (char*) calloc(MAX_LENGTH, sizeof(char));
+	while (gets_s(*(str + ct), MAX_LENGTH) != NULL && strcmp(str[ct], HALT) != 0 && ct++ < MAX_STRINGS)
+		str = (char**) realloc(str, sizeof(char*) * ct + 1);
+		*(str + ct + 1) = (char*)calloc(MAX_LENGTH, sizeof(char));
+		;
+	return ct;
 }
 
 char bufRus[256];
-
 char* Rus(const char* text)
 {
 	CharToOemA(text, bufRus);
 	return bufRus;
+}
+
+void sort(char ** str, int n, sort_f f)
+{
+	int l = 0, r = n - 1;
+	char* m = *(str + n / 2);
+	char* tmp;
+
+	do
+	{
+		while (*(str + l) < m) l++;
+		while (*(str + r) > m) r--;
+
+		if ((*f)(*(str + l), *(str + l)) < 0)
+		{
+			tmp = *(str + l);
+			*(str + l) = *(str + r);
+			*(str + r) = tmp;
+			l++;
+			r--;
+		}
+	} while (l <= r);
+
+
+	if (r > 0) sort(str, r + 1, f);
+	if (n > l) sort(str + l, n - l, f);
+}
+
+int char_count(char * str)
+{
+	int count = 0;
+	while (*str++ == sort_symbol)
+		++count;
+	return count;
+}
+
+int char_count_comp_ASC(char * l, char * r)
+{
+	return char_count(l) - char_count(r);
 }
