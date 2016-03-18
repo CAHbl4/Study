@@ -1,4 +1,4 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include <windows.h>
 
 /*
@@ -18,10 +18,10 @@
 #define MAX_LENGTH		100
 #define HALT			""
 
-typedef int (*sort_f)(char*, char*);
+typedef int(*sort_f)(char*, char*);
 
 char* Rus(const char* text);
-int read_str(char **);
+char** read_str(char **, int* ct);
 void sort(char ** str, int n, sort_f f);
 
 int char_count(char* str);
@@ -32,9 +32,9 @@ char sort_symbol = 'a';
 void main() {
 
 	//Code goes here
-	char ** str = (char**) malloc(sizeof(char*));
-	
-	int count = read_str(str);
+	char ** str = (char**)malloc(sizeof(char*));
+	int count = 0;
+	str = read_str(str, &count);
 
 	sort_f f = &char_count_comp_ASC;
 
@@ -43,22 +43,26 @@ void main() {
 	{
 		puts(*(str + i));
 	}
-
+	puts("\n");
 	sort(str, count, f);
+	for (i = 0; i < count; i++)
+	{
+		puts(*(str + i));
+	}
+
 }
 
-int read_str(char **str)
+char** read_str(char **str, int* ct)
 {
 
-	int ct = 0;
 	printf(Rus("Введите до %d строк.\n"), MAX_STRINGS);
 	printf(Rus("Для прекращения ввода-<Enter> в начале строки.\n"));
-	*str = (char*) calloc(MAX_LENGTH, sizeof(char));
-	while (gets_s(*(str + ct), MAX_LENGTH) != NULL && strcmp(str[ct], HALT) != 0 && ct++ < MAX_STRINGS)
-		str = (char**) realloc(str, sizeof(char*) * ct + 1);
-		*(str + ct + 1) = (char*)calloc(MAX_LENGTH, sizeof(char));
-		;
-	return ct;
+	*str = (char*)calloc(MAX_LENGTH, sizeof(char));
+	while (gets_s(*(str + *ct), MAX_LENGTH) != NULL && strcmp(*(str + *ct), HALT) != 0 && (*ct)++ < MAX_STRINGS){
+		str = (char**)realloc(str, sizeof(char*)* (*ct + 1));
+		*(str + *ct) = (char*)calloc(MAX_LENGTH, sizeof(char));
+	}
+	return str;
 }
 
 char bufRus[256];
@@ -76,10 +80,10 @@ void sort(char ** str, int n, sort_f f)
 
 	do
 	{
-		while (*(str + l) < m) l++;
-		while (*(str + r) > m) r--;
+		while ((*f)(*(str + l), m) < 0) l++;
+		while ((*f)(m, *(str + r)) < 0) r--;
 
-		if ((*f)(*(str + l), *(str + l)) < 0)
+		if ((*f)(*(str + l), *(str + r)) < 0)
 		{
 			tmp = *(str + l);
 			*(str + l) = *(str + r);
@@ -97,8 +101,10 @@ void sort(char ** str, int n, sort_f f)
 int char_count(char * str)
 {
 	int count = 0;
-	while (*str++ == sort_symbol)
+	while (*str++){
+		if (*str == sort_symbol)
 		++count;
+	}
 	return count;
 }
 
