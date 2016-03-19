@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <windows.h>
 
 /*
@@ -12,7 +12,6 @@
 * a.matuzov, 3/15/2016 7:02:43 PM
 */
 #define MIN_STRINGS		10
-#define MAX_STRINGS		100
 #define MIN_WORDS		5
 #define MIN_CHARS		5
 #define MAX_LENGTH		100
@@ -21,7 +20,8 @@
 typedef int(*sort_f)(char*, char*);
 
 char* Rus(const char* text);
-char** read_str(char **, int* ct);
+char** read_strings(char **, int* ct);
+char *read_string(FILE* fp, size_t size);
 void sort(char ** str, int n, sort_f f);
 
 int char_count(char* str);
@@ -32,18 +32,22 @@ char sort_symbol = 'a';
 void main() {
 
 	//Code goes here
-	char ** str = (char**)malloc(sizeof(char*));
+	char ** str = NULL;
 	int count = 0;
-	str = read_str(str, &count);
+
+	printf(Rus("Вводите строки и они будут отсортированы. Необходимо ввести не меннее %d строк.\n"), MIN_STRINGS);
+	printf(Rus("Для прекращения ввода-<Enter> в начале строки.\n"));
+	str = read_strings(str, &count);
 
 	sort_f f = &char_count_comp_ASC;
 
 	int i;
-	for (i = 0; i < count; i++)
-	{
-		puts(*(str + i));
-	}
-	puts("\n");
+	//for (i = 0; i < count; i++)
+	//{
+	//	printf("%s - %d\n", *(str + i), char_count_comp_ASC(*str, *(str+i)));
+	//}
+	//puts("\n");
+
 	sort(str, count, f);
 	for (i = 0; i < count; i++)
 	{
@@ -52,17 +56,36 @@ void main() {
 
 }
 
-char** read_str(char **str, int* ct)
+char** read_strings(char **str, int* count)
 {
+	char* s;
+	int alloc = *count + 10;
+	str = (char**)realloc(str, sizeof(char*) * alloc);
 
-	printf(Rus("Введите до %d строк.\n"), MAX_STRINGS);
-	printf(Rus("Для прекращения ввода-<Enter> в начале строки.\n"));
-	*str = (char*)calloc(MAX_LENGTH, sizeof(char));
-	while (gets_s(*(str + *ct), MAX_LENGTH) != NULL && strcmp(*(str + *ct), HALT) != 0 && (*ct)++ < MAX_STRINGS){
-		str = (char**)realloc(str, sizeof(char*)* (*ct + 1));
-		*(str + *ct) = (char*)calloc(MAX_LENGTH, sizeof(char));
+	while ((s = read_string(stdin, 10)) && strcmp(s, HALT)){
+		if (*count == alloc)
+			str = (char**)realloc(str, sizeof(char*)*(alloc+=10));
+		*(str + *count) = s;
+		++(*count);
 	}
-	return str;
+	return (char**)realloc(str,sizeof(char*) * *count);
+}
+
+char* read_string(FILE* fp, size_t size) {
+	char *str;
+	int ch;
+	size_t len = 0;
+	str = (char*)calloc(size, sizeof(char));
+	while (EOF != (ch = fgetc(fp)) && ch != '\n') {
+		str[len++] = ch;
+		if (len == size) {
+			str = (char*)realloc(str, sizeof(char)*(size += 16));
+			if (!str)return str;
+		}
+	}
+	str[len++] = '\0';
+
+	return (char*)realloc(str, sizeof(char)*len);
 }
 
 char bufRus[256];
@@ -74,6 +97,15 @@ char* Rus(const char* text)
 
 void sort(char ** str, int n, sort_f f)
 {
+	static int iter = 1;
+	printf("\nIteration = %d, array:\n", iter++);
+	int i;
+	for (i = 0; i < n; i++)
+	{
+		puts(*(str + i));
+	}
+
+
 	int l = 0, r = n - 1;
 	char* m = *(str + n / 2);
 	char* tmp;
@@ -81,9 +113,9 @@ void sort(char ** str, int n, sort_f f)
 	do
 	{
 		while ((*f)(*(str + l), m) < 0) l++;
-		while ((*f)(m, *(str + r)) < 0) r--;
+		while ((*f)(*(str + r), m) > 0) r--;
 
-		if ((*f)(*(str + l), *(str + r)) < 0)
+		if (l <= r)
 		{
 			tmp = *(str + l);
 			*(str + l) = *(str + r);
@@ -101,9 +133,10 @@ void sort(char ** str, int n, sort_f f)
 int char_count(char * str)
 {
 	int count = 0;
-	while (*str++){
+	while (*str){
 		if (*str == sort_symbol)
 		++count;
+		++str;
 	}
 	return count;
 }
