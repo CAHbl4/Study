@@ -261,7 +261,7 @@ int read_int(FILE* stream)
 		result = fscanf(stream, "%d", &n);
 		if (result == EOF)
 		{
-			fwprintf(stderr, L"Неожиданный конец файла\n");
+			fprintf(stderr, Rus("Неожиданный конец файла\n"));
 			exit(74);
 		}
 		if (result == 0)
@@ -271,7 +271,7 @@ int read_int(FILE* stream)
 				ch = fgetc(stream);
 			}
 			while (ch <= '0' && ch >= '9');
-			fwprintf(stderr, L"Ожидалось целое\n");
+			fprintf(stderr, Rus("Ожидалось целое\n"));
 		}
 	}
 	while (!result);
