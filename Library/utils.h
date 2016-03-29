@@ -13,6 +13,12 @@ size_t num_char_count(__int64 num);
  */
 __int8 is_digit(char ch);
 
+
+/**
+ * Returns 1 if character is letter and 0 if not
+ */
+__int8 is_letter(char ch);
+
 /**
  * Free ptr-to-ptr
  */
