@@ -76,6 +76,12 @@ char* str_str_replace(const char* str, const char* find, const char* replace);
 /**
  * Returns pointer to longest string
  */
-char* str_find_max(char** str, size_t count)
+char* str_find_max(char** str, size_t count);
+
+
+/**
+ * Returns array of pointers to words start. Set replace to 1 if you want replace separators with '\0'
+ */
+char** str_to_words(char* str, size_t* count, const char* separators, __int8 replace);
 
 #endif /* _STRINGS_H */
