@@ -131,7 +131,7 @@ char* int_to_str(__int64 num)
 	if (!num)
 		*str = '0';
 
-	num = abs(num);
+	num = llabs(num);
 	while(num)
 	{
 		*(str + length--) = '0' + num % 10;
