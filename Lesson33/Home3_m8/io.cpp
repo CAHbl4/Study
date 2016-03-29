@@ -86,3 +86,12 @@ char read_char(FILE* fp)
 
 	return ch;
 }
+
+void print_strings(char** str, size_t count)
+{
+	size_t i;
+	for (i = 0; i < count; ++i)
+	{
+		puts(*(str + i));
+	}
+}

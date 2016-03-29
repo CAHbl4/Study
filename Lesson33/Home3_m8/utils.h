@@ -13,4 +13,9 @@ size_t num_char_count(__int64 num);
  */
 __int8 is_digit(char ch);
 
+/**
+ * Free ptr-to-ptr
+ */
+void* free_ptr_ptr(void **ptr, size_t count);
+
 #endif

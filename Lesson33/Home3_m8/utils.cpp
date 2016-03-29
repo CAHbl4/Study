@@ -1,4 +1,5 @@
 #include <math.h>
+#include <malloc.h>
 
 size_t num_char_count(__int64 num)
 {
@@ -15,4 +16,15 @@ size_t num_char_count(__int64 num)
 __int8 is_digit(char ch)
 {
 	return (ch >= '0' && ch <= '9');
+}
+
+void* free_ptr_ptr(void **ptr, size_t count)
+{
+	size_t i;
+	for (i = 0; i < count; ++i)
+	{
+		free(*(ptr + i));
+	}
+	free(ptr);
+	return NULL;
 }

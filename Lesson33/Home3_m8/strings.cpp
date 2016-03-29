@@ -180,7 +180,6 @@ char* str_rev(const char* str)
 }
 
 
-//todo: Исправить ошибку если в replace слово длиннее и содержит find
 char* str_str_replace(const char* str, const char* find, const char* replace)
 {
 	size_t str_len = strlen(str);
@@ -218,7 +217,7 @@ char* str_str_replace(const char* str, const char* find, const char* replace)
 				*(new_str + new_str_len++) = *(replace + k);
 			}
 			start = i + find_len;
-			i += find_len;
+			i += find_len - 1;
 		}
 	}
 	if (start != str_len)

@@ -2,6 +2,7 @@
 #include <windows.h>
 #include "strings.h"
 #include "io.h"
+#include "utils.h"
 
 char* Rus(const char* text);
 size_t count_nums(char* str);
@@ -48,7 +49,6 @@ void main() {
 	//puts("");
 	//func_326();
 	//puts("");
-	printf(Rus("Задание 3.3.1:\n"));
 	func_331();
 	system("pause");
 }
@@ -123,7 +123,7 @@ void func_315()
 	printf(Rus("Исходная строка:\n"));
 	puts(str);
 	printf(Rus("Результат работы функции str_chr_count(): "));
-	printf("%d\n", str_chr_count(str, ch));
+	printf("%llu\n", str_chr_count(str, ch));
 	free(str);
 }
 
@@ -226,19 +226,38 @@ void func_326()
 
 void func_331()
 {
-	printf(Rus("Вводите текст."));
+	printf(Rus("Задание 3.3.1:\n"));
+	printf(Rus("Есть некоторый текст.\n"));
+	printf(Rus("Вводите текст.\n"));
 	printf(Rus("Для прекращения ввода-<Enter> в начале строки.\n"));
 	size_t count = 0;
 	char** str = read_strings(stdin, NULL, &count);
+
+	printf(Rus("Исходный текст:\n"));
+	print_strings(str, count);
+
+	printf(Rus("Задание 1: Найдите и замените вхождение некоторого слова на заданное пользователем слово.\n"));
+	printf(Rus("Введите строку поиска: "));
+	char* find = read_string(stdin);
+	printf(Rus("Введите строку замены: "));
+	char* replace = read_string(stdin);
+
 	size_t i;
+	char* tmp;
 	for (i = 0; i < count; ++i)
 	{
-		char* tmp = str_str_replace(*(str + i), "test", "fooasdasdatest");
-		puts(tmp);
-		free(tmp);
+		tmp = str_str_replace(*(str + i), find, replace);
 		free(*(str + i));
+		*(str + i) = tmp;
+		free(tmp);
 	}
-	free(str);
+
+	printf(Rus("Результат замены:\n"));
+	print_strings(str, count);
+
+	free_ptr_ptr((void**)str, count);
+	free(find);
+	free(replace);
 }
 
 char bufRus[256];

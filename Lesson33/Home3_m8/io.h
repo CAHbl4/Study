@@ -30,5 +30,9 @@ __int64 read_int(FILE* fp);
 */
 char read_char(FILE* fp);
 
+/**
+ * Print strings
+ */
+void print_strings(char** str, size_t count);
 
 #endif /* _IO_H */
