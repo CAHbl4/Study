@@ -26,10 +26,10 @@ void* convert_dim(int* arr, size_t size, size_t dim, size_t* dim_p);
 void main() {
 	size_t n, m;
 	printf(Rus("Введите размер N массивов: "));
-	n = read_int(stdin);
+	n = (size_t)read_int(stdin);
 
 	printf(Rus("Введите размер M массивов: "));
-	m = read_int(stdin);
+	m = (size_t)read_int(stdin);
 	int** arr1 = create_array(n, m);
 	int** arr2 = create_array(n, m);
 	int** arr3 = create_array(n, m);

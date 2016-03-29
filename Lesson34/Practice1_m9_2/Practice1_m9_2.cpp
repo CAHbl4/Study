@@ -3,28 +3,30 @@
 #include <math.h>
 
 /*
-*
-* amatu, 3/29/2016 11:19:27 AM
-*/
+ * Вариант 8:
+ * Напишите функцию для обращения одномерного массива в N-мерный. Должны выполняться соответствующие проверки.
+ *
+ * amatu, 3/29/2016 11:19:27 AM
+ */
 #define HALT			""
 
 char* Rus(const char* text);
-int* read_array(int* arr, size_t* count);
-int* parse_ints(int* nums, char* str, size_t* count);
-int str_to_int(char* str);
+__int64* read_array(__int64* arr, size_t* count);
+__int64* parse_ints(__int64* nums, char* str, size_t* count);
+__int64 str_to_int(const char* str);
 int is_digit(char);
 char* read_string(FILE* fp, size_t size);
-void print_array(int* arr, int count);
+void print_array(__int64* arr, size_t count);
 __int64 read_int(FILE* fp);
 void flush_stream(FILE* fp);
 
-void* convert_dim(int* arr, size_t size, size_t dim);
+void convert_dim(__int64* arr, size_t size, size_t dim);
 
 void main() {
 
-	int* arr = NULL;
+	__int64* arr = NULL;
 	size_t count = 0;
-	printf(Rus("Вводите числа и они будут записаны в массив."));
+	printf(Rus("Вводите числа и они будут записаны в массив.\n"));
 	printf(Rus("Для прекращения ввода-<Enter> в начале строки.\n"));
 	arr = read_array(arr, &count);
 
@@ -34,12 +36,12 @@ void main() {
 	size_t dim = 1;
 	while (dim)
 	{
-		printf(Rus("Введите размерность массива (1 - 3), 0 для выхода: "));
-		dim = read_int(stdin);
+		printf(Rus("Введите размерность массива (2 - 3), 0 для выхода: "));
+		dim = (size_t)read_int(stdin);
 		convert_dim(arr, count, dim);
 	}
 
-
+	free(arr);
 	system("pause");
 }
 
@@ -51,66 +53,73 @@ char* Rus(const char* text)
 	return bufRus;
 }
 
-void* convert_dim(int* arr, size_t size, size_t dim)
+
+/*
+ * Функция динамически выделяет память под указатели 2х и 3х мерного массива выводит результаты
+ * на экран и освобождает память
+ */
+void convert_dim(__int64* arr, size_t size, size_t dim)
 {
 	size_t i, j, m, k;
-	int** result2;
-	int*** result3;
+	__int64** result2;
+	__int64*** result3;
 
-	if (dim > 3) {
+	if (dim < 2 && dim > 3) {
 		printf(Rus("Неверная размерность"));
-		return NULL;
+		return;
 	}
 
 	switch (dim)
 	{
-	case 1:
-		return arr;
 	case 2:
 		printf(Rus("Введите количество элементов в строке: "));
-		m = read_int(stdin);
+		m = (size_t)read_int(stdin);
 		if (size % m)
 		{
-			printf(Rus("Количество элементов не подходит к массиву"));
-			return NULL;
+			printf(Rus("Количество элементов не подходит к массиву.\n"));
+			return;
 		}
-		result2 = (int**)malloc(sizeof(int *) * size / m);
+		result2 = (__int64**)malloc(sizeof(__int64 *) * size / m);
 		for (i = 0; i < size / m; ++i)
 		{
 			*(result2 + i) = arr + m * i;
 		}
-		return (void*)result2;
-	case 3:
-		printf(Rus("Введите количество элементов m: "));
-		m = read_int(stdin);
-		printf(Rus("Введите количество элементов k: "));
-		k = read_int(stdin);
-		if (size % m * k)
-		{
-			printf(Rus("Количество элементов не подходит к массиву"));
-			return NULL;
-		}
-		result3 = (int***)malloc(sizeof(int ***) * size / m * k);
-		for (i = 0; i < size / m * k; ++i)
-		{
-			*(result3 + i) = (int**)malloc(sizeof(int*) * m);
-			for (j = 0; j < m; ++j)
-			{
-				*(*(result3 + i) + j) = arr + (m * i + k * j);
-			}
-		}
-		for (i = 0; i < size / m * k; ++i)
+		for (i = 0; i < size / m; ++i)
 		{
 			printf("Array[%d]:\n", i);
+			print_array(*(result2 + i), m);
+		}
+		free(result2);
+		return;
+	case 3:
+		printf(Rus("Введите количество элементов m: "));
+		m = (size_t)read_int(stdin);
+		printf(Rus("Введите количество элементов k: "));
+		k = (size_t)read_int(stdin);
+		if (size % m * k)
+		{
+			printf(Rus("Количество элементов не подходит к массиву.\n"));
+			return;
+		}
+		result3 = (__int64***)malloc(sizeof(__int64 ***) * size / m * k);
+		for (i = 0; i < size / (m * k); ++i)
+		{
+			*(result3 + i) = (__int64**)malloc(sizeof(__int64*) * m);
 			for (j = 0; j < m; ++j)
 			{
-				print_array(*(*(result3 + i) + j), k);
-				printf("\n");
+				*(*(result3 + i) + j) = arr + (m * k * i) + k * j;
 			}
 		}
-		return (void*)result3;
-	default:
-		return NULL;
+		for (i = 0; i < size / (m * k); ++i)
+		{
+			for (j = 0; j < m; ++j)
+			{
+				printf("Array[%d][%d]:\n", i, j);
+				print_array(*(*(result3 + i) + j), k);
+			}
+			free(*(result3 + i));
+		}
+		free(result3);
 	}
 }
 
@@ -124,7 +133,7 @@ void* convert_dim(int* arr, size_t size, size_t dim)
 *
 *  returns:	Указатель на массив
 */
-int* read_array(int* arr, size_t* count)
+__int64* read_array(__int64* arr, size_t* count)
 {
 	char* s;
 
@@ -139,7 +148,7 @@ int* read_array(int* arr, size_t* count)
 		free(s);
 	}
 
-	return (int*)realloc(arr, sizeof(int) * *count);
+	return (__int64*)realloc(arr, sizeof(__int64) * *count);
 }
 
 /*
@@ -153,13 +162,13 @@ int* read_array(int* arr, size_t* count)
 *
 *  returns:		Указатель на новый адрес массива
 */
-int* parse_ints(int* nums, char* str, size_t* count)
+__int64* parse_ints(__int64* nums, char* str, size_t* count)
 {
 	int in_num = 0;
-	int alloc = *count + 5;
+	size_t alloc = *count + 5;
 	char tmp_c[20];
 	int n = 0, i;
-	nums = (int*)realloc(nums, sizeof(int) * alloc);
+	nums = (__int64*)realloc(nums, sizeof(__int64) * alloc);
 	for (i = 0; i < (int)strlen(str) + 1; ++i)
 	{
 		if (!is_digit(*(str + i)))
@@ -168,7 +177,7 @@ int* parse_ints(int* nums, char* str, size_t* count)
 			{
 				tmp_c[n] = '\0';
 				if (*count == alloc)
-					nums = (int*)realloc(nums, sizeof(int) * (alloc += 5));
+					nums = (__int64*)realloc(nums, sizeof(__int64) * (alloc += 5));
 				*(nums + *count) = str_to_int(tmp_c);
 				++(*count);
 				in_num = 0;
@@ -195,7 +204,7 @@ int* parse_ints(int* nums, char* str, size_t* count)
 		}
 	}
 
-	return (int*)realloc(nums, sizeof(int) * *count);
+	return (__int64*)realloc(nums, sizeof(__int64) * *count);
 }
 
 
@@ -240,11 +249,11 @@ char* read_string(FILE* fp, size_t size)
 *
 *  returns:		Целое число
 */
-int str_to_int(char* str)
+__int64 str_to_int(const char* str)
 {
-	int i, j = 0;
-	int tmp = 0;
-	int sign = 1;
+	size_t i, j = 0;
+	__int64 tmp = 0;
+	__int8 sign = 1;
 
 	if (*str == '-')
 	{
@@ -252,9 +261,9 @@ int str_to_int(char* str)
 		++str;
 	}
 
-	for (i = strlen(str) - 1; i >= 0; --i)
+	for (i = strlen(str); i--> 0;)
 	{
-		tmp += (*(str + i) - '0') * (int)pow(10, j++);
+		tmp += (*(str + i) - '0') * (__int64)pow(10, j++);
 	}
 	return tmp * sign;
 }
@@ -274,12 +283,12 @@ int is_digit(char c)
 	return (c >= '0' && c <= '9');
 }
 
-void print_array(int* arr, int count)
+void print_array(__int64* arr, size_t count)
 {
 	int i;
 	for (i = 0; i < count; ++i)
 	{
-		printf("%d ", *(arr + i));
+		printf("%lld ", *(arr + i));
 	}
 	puts("");
 }
