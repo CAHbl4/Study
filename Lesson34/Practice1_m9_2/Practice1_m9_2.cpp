@@ -102,7 +102,7 @@ void convert_dim(__int64* arr, size_t size, size_t dim)
 			printf(Rus("Количество элементов не подходит к массиву.\n"));
 			return;
 		}
-		result3 = (__int64***)malloc(sizeof(__int64 ***) * size / m * k);
+		result3 = (__int64***)malloc(sizeof(__int64 ***) * (size / (m * k)));
 		for (i = 0; i < size / (m * k); ++i)
 		{
 			*(result3 + i) = (__int64**)malloc(sizeof(__int64*) * m);
