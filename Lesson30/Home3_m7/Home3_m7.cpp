@@ -215,16 +215,7 @@ char* read_string(FILE* fp, size_t size)
 }
 
 
-/*
-* Function:  read_string
-* --------------------
-* Читает строку с указанного потока
-*
-*  fp:		Поток ввода
-*  count:	Начальный размер строки
-*
-*  returns:	Указатель на прочитанную строку
-*/
+
 void print_array(int* arr, int count)
 {
 	int i;
