@@ -167,6 +167,20 @@ char* str_to_lower(char* str)
 }
 
 
+void chr_to_upper(char* chr)
+{
+	if (*chr >= 'a' && *chr <= 'z')
+		*chr = *chr - 'a' + 'A';
+}
+
+
+void chr_to_lower(char* chr)
+{
+	if (*chr >= 'A' && *chr <= 'Z')
+		*chr = *chr + 'a' - 'A';
+}
+
+
 char* str_rev(const char* str)
 {
 	size_t i, length = strlen(str);

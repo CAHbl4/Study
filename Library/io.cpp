@@ -78,6 +78,7 @@ __int64 read_int(FILE* fp)
 	return n;
 }
 
+
 char read_char(FILE* fp)
 {
 	char ch = fgetc(fp);
@@ -86,6 +87,7 @@ char read_char(FILE* fp)
 
 	return ch;
 }
+
 
 void print_strings(char** str, size_t count)
 {

@@ -28,8 +28,8 @@ char* str_chr_replace(char* str, const char find, const char replace);
 size_t str_chrs_count(const char* str, const char* find);
 
 /**
-* Returns count of 'find' character in string 'str'
-*/
+ * Returns count of 'find' character in string 'str'
+ */
 size_t str_chr_count(const char* str, char find);
 
 /**
@@ -48,36 +48,40 @@ __int64 str_to_int(const char* str);
  */
 char* int_to_str(__int64 num);
 
-
 /**
  * Converts all characters in string to uppercase
  */
 char* str_to_upper(char* str);
 
-
 /**
-* Converts all characters in string to lowercase
-*/
+ * Converts all characters in string to lowercase
+ */
 char* str_to_lower(char* str);
 
+/**
+ * Converts character to uppercase
+ */
+void chr_to_upper(char* str);
+
+/**
+ * Converts character to to lowercase
+ */
+void chr_to_lower(char* str);
 
 /**
  * Reverse string and return pointer to new string
  */
 char* str_rev(const char* str);
 
-
 /**
  * Replaces 'find' string with 'replace' string in 'str' and returns new pointer to 'str'
  */
 char* str_str_replace(const char* str, const char* find, const char* replace);
 
-
 /**
  * Returns pointer to longest string
  */
 char* str_find_max(char** str, size_t count);
-
 
 /**
  * Returns array of pointers to words start. Set replace to 1 if you want replace separators with '\0'
