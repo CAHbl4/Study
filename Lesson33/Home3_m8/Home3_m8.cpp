@@ -4,9 +4,12 @@
 #include "io.h"
 #include "utils.h"
 
+#define SENTENCE_SEPARATORS		".!?"
+
 char* Rus(const char* text);
 size_t count_nums(char* str);
 size_t count_letters(char* str);
+void sentence_start_up(char* str, const char* separators);
 void func_311();
 void func_312();
 void func_313();
@@ -25,30 +28,30 @@ void func_331();
 void main() {
 	
 	printf(Rus("Все функции написаны и протестированы только для латинских символов\n"));
-	//func_311();
-	//puts("");
-	//func_312();
-	//puts("");
-	//func_313();
-	//puts("");
-	//func_314();
-	//puts("");
-	//func_315();
-	//puts("");
-	//func_316();
+	func_311();
+	puts("");
+	func_312();
+	puts("");
+	func_313();
+	puts("");
+	func_314();
+	puts("");
+	func_315();
+	puts("");
+	func_316();
 	printf(Rus("Задание 3.2.1:\nДополните свою библиотеку функций реализациями нижеследующих функций:\n"));
-	//func_321();
-	//puts("");
-	//func_322();
-	//puts("");
-	//func_323();
-	//puts("");
-	//func_324();
-	//puts("");
-	//func_325();
-	//puts("");
-	//func_326();
-	//puts("");
+	func_321();
+	puts("");
+	func_322();
+	puts("");
+	func_323();
+	puts("");
+	func_324();
+	puts("");
+	func_325();
+	puts("");
+	func_326();
+	puts("");
 	func_331();
 	system("pause");
 }
@@ -123,7 +126,7 @@ void func_315()
 	printf(Rus("Исходная строка:\n"));
 	puts(str);
 	printf(Rus("Результат работы функции str_chr_count(): "));
-	printf("%llu\n", str_chr_count(str, ch));
+	printf("%u\n", str_chr_count(str, ch));
 	free(str);
 }
 
@@ -249,7 +252,16 @@ void func_331()
 		tmp = str_str_replace(*(str + i), find, replace);
 		free(*(str + i));
 		*(str + i) = tmp;
-		free(tmp);
+	}
+
+	printf(Rus("Результат замены:\n"));
+	print_strings(str, count);
+
+	printf(Rus("Задание 2: Изменить текст таким образом, чтобы каждое предложение начиналось с большой буквы\n"));
+
+	for (i = 0; i < count; ++i)
+	{
+		sentence_start_up(*(str + i), SENTENCE_SEPARATORS);
 	}
 
 	printf(Rus("Результат замены:\n"));
@@ -279,14 +291,13 @@ char* Rus(const char* text)
 */
 size_t count_nums(char* str)
 {
-	char find[11];
-	int i;
-	for (i = 0; i < 10; ++i)
+	size_t count = 0;
+	while(*str)
 	{
-		find[i] = '0' + i;
+		if (is_digit(*str))
+			++count;
 	}
-	find[i] = '\0';
-	return str_chrs_count(str, find);
+	return count;
 }
 
 
@@ -301,16 +312,30 @@ size_t count_nums(char* str)
 */
 size_t count_letters(char* str)
 {
-	char find[53];
-	int i, j = 0;
-	for (i = 0; i < 26; ++i)
+	size_t count = 0;
+	while (*str)
 	{
-		find[j++] = 'a' + i;
+		if (is_letter(*str))
+			++count;
 	}
-	for (i = 0; i < 26; ++i)
+	return count;
+}
+
+
+void sentence_start_up(char* str, const char* separators)
+{
+	__int8 insep = 1;
+	while (*str)
 	{
-		find[j++] = 'A' + i;
+		if (strchr(separators, *str))
+		{
+			insep = 1;
+		}
+		else if (insep && is_letter(*str))
+		{
+			chr_to_upper(str);
+			insep = 0;
+		}
+		++str;
 	}
-	find[j] = '\0';
-	return str_chrs_count(str, find);
 }

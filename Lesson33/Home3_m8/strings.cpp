@@ -167,6 +167,20 @@ char* str_to_lower(char* str)
 }
 
 
+void chr_to_upper(char* chr)
+{
+	if (*chr >= 'a' && *chr <= 'z')
+		*chr = *chr - 'a' + 'A';
+}
+
+
+void chr_to_lower(char* chr)
+{
+	if (*chr >= 'A' && *chr <= 'Z')
+		*chr = *chr + 'a' - 'A';
+}
+
+
 char* str_rev(const char* str)
 {
 	size_t i, length = strlen(str);
@@ -230,5 +244,46 @@ char* str_str_replace(const char* str, const char* find, const char* replace)
 		}
 	}
 	*(new_str + new_str_len++) = '\0';
-	return (char*)realloc(new_str, sizeof(char) * new_str_len + 1);
+	return (char*)realloc(new_str, sizeof(char) * new_str_len);
+}
+
+
+char* str_find_max(char** str, size_t count)
+{
+	char* max = *str;
+	size_t i;
+	for (i = 1; i < count; ++i)
+	{
+		if (strlen(max) < strlen(*(str + i )))
+		{
+			max = (char*)*(str + i);
+		}
+	}
+	return max;
+}
+
+
+char** str_to_words(char* str, size_t* count, const char* separators, __int8 replace)
+{
+	size_t alloc = *count + 5;
+	char** words = (char**)calloc(alloc, sizeof(char*));
+	__int8 insep = 1;
+	while (*str)
+	{
+		if (strchr(separators, *str))
+		{
+			insep = 1;
+			if (replace)
+				*str = '\0';
+		}
+		else if (insep)
+		{
+			if (*count == alloc)
+				words = (char**)realloc(words, sizeof(char*) * (alloc += 5));
+			*(words + (*count)++) = str;
+			insep = 0;
+		}
+		++str;
+	}
+	return (char**)realloc(words, sizeof(char*) * *count);
 }

@@ -13,10 +13,18 @@ size_t num_char_count(__int64 num)
 	return count;
 }
 
+
 __int8 is_digit(char ch)
 {
 	return (ch >= '0' && ch <= '9');
 }
+
+
+__int8 is_letter(char ch)
+{
+	return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'));
+}
+
 
 void* free_ptr_ptr(void **ptr, size_t count)
 {
