@@ -131,7 +131,7 @@ char* int_to_str(__int64 num)
 	if (!num)
 		*str = '0';
 
-	num = abs(num);
+	num = llabs(num);
 	while(num)
 	{
 		*(str + length--) = '0' + num % 10;
@@ -244,7 +244,7 @@ char* str_str_replace(const char* str, const char* find, const char* replace)
 		}
 	}
 	*(new_str + new_str_len++) = '\0';
-	return (char*)realloc(new_str, sizeof(char) * new_str_len + 1);
+	return (char*)realloc(new_str, sizeof(char) * new_str_len);
 }
 
 
