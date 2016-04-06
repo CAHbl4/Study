@@ -52,6 +52,7 @@ typedef struct menu {
 } menu_t;
 
 typedef struct phonebook_item {
+	size_t id;
 	char* first_name;
 	char* last_name;
 	char* patronymic;
@@ -81,6 +82,7 @@ typedef struct table {
 state add_record(void* data, void* param);
 state add_test_records(void* data, void* param);
 state print_records(void* data, void* param);
+state do_work(void* data, void* param);
 
 char* get_random_first_name();
 char* get_random_last_name();
@@ -126,6 +128,7 @@ int main() {
 	menu_add_item(main_menu, Rus("Добавить запись"), &add_record, &phonebook, &count);
 	menu_add_item(main_menu, Rus("Добавить тестовые записи"), &add_test_records, &phonebook, &count);
 	menu_add_item(main_menu, Rus("Вывести записи"), &print_records, &phonebook, &count);
+	menu_add_item(main_menu, Rus("Выполнить задание варианта 13"), &do_work, &phonebook, &count);
 	menu_add_item(main_menu, "Exit", &exit_program, NULL, NULL);
 
 	menu_execute(main_menu, NULL);
@@ -143,7 +146,7 @@ state print_records(void* data, void* param)
 	size_t i;
 	table_t* table = table_create(0, *count);
 
-	int* n				= (int*)calloc(*count, sizeof(int));
+	size_t* n			= (size_t*)calloc(*count, sizeof(size_t));
 	char** last_names	= (char**)calloc(*count, sizeof(char**));
 	char** first_names	= (char**)calloc(*count, sizeof(char**));
 	char** patronymic = (char**)calloc(*count, sizeof(char**));
@@ -163,7 +166,7 @@ state print_records(void* data, void* param)
 
 	for (i = 0; i < *count; ++i)
 	{
-		*(n + i)			= i + 1;
+		*(n + i)			= (*phonebook + i)->id;
 		*(last_names + i)	= (*phonebook + i)->last_name;
 		*(first_names + i)	= (*phonebook + i)->first_name;
 		*(patronymic + i)	= (*phonebook + i)->patronymic;
@@ -179,7 +182,7 @@ state print_records(void* data, void* param)
 	ret = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
 	if (ret)
 	{
-		sreen_width = csbi.dwSize.X;
+		sreen_width = csbi.dwSize.X - 4;
 	} else {
 		sreen_width = 110;
 	}
@@ -200,12 +203,41 @@ state print_records(void* data, void* param)
 	return REDRAW;
 }
 
+state do_work(void* data, void* param) {
+	system("cls");
+	printf(Rus("Задание вараинта 13: Заменить адрес владельца телефона «651480» на адрес: улица «Пирогова», дом «4», квартира «17».\n"));
+	phonebook_item_t** phonebook = (phonebook_item_t**)data;
+	size_t* count = (size_t*)param;
+	size_t i, changed = 0;
+
+	for (i = 0; i < *count; ++i) {
+		if (!strcmp((*phonebook + i)->phone, "651480")) {
+			(*phonebook + i)->street = (char*)realloc((*phonebook + i)->street, sizeof(char) * (strlen("Пирогова") + 1));
+			strcpy((*phonebook + i)->street, Rus("Пирогова"));
+			(*phonebook + i)->bld = (char*)realloc((*phonebook + i)->bld, sizeof(char) * (strlen("4") + 1));
+			strcpy((*phonebook + i)->bld, "4");
+			(*phonebook + i)->ap = (char*)realloc((*phonebook + i)->ap, sizeof(char) * (strlen("17") + 1));
+			strcpy((*phonebook + i)->ap, "17");
+			++changed;
+		}
+	}
+	if (changed) {
+		printf(Rus("Произведено замен: %d\n"), changed);
+	} else {
+		printf(Rus("Совпадений не найдено\n"));
+	}
+	system("pause");
+	return REDRAW;
+}
+
 state add_record(void* data, void* param) {
 	system("cls");
 	phonebook_item_t** phonebook = (phonebook_item_t**)data;
 	size_t* count = (size_t*)param;
 
 	*phonebook = (phonebook_item_t*)realloc(*phonebook, sizeof(phonebook_item_t) * (*count + 1));
+
+	(*phonebook + *count)->id = (*count ? (*phonebook + *count - 1)->id + 1 : 1);
 
 	printf(Rus("Введите фамилию: "));
 	(*phonebook + *count)->last_name = read_string(stdin);
@@ -242,16 +274,17 @@ state add_test_records(void* data, void* param) {
 	*phonebook = (phonebook_item_t*)realloc(*phonebook, sizeof(phonebook_item_t) * (*count + add_count));
 
 	for (i = 0; i < add_count; ++i) {
-		(*phonebook + *count + i)->last_name = get_random_last_name();
-		(*phonebook + *count + i)->first_name = get_random_first_name();
-		(*phonebook + *count + i)->patronymic = get_random_patronymic();
-		(*phonebook + *count + i)->street = get_random_street();
-		(*phonebook + *count + i)->bld = int_to_str(get_rand(0, 300));
-		(*phonebook + *count + i)->ap = int_to_str(get_rand(0, 150));
-		(*phonebook + *count + i)->phone = int_to_str(get_rand(111111, 999999));
+		(*phonebook + *count)->id = (*count ? (*phonebook + *count - 1)->id + 1 : 1);
+		(*phonebook + *count)->last_name = get_random_last_name();
+		(*phonebook + *count)->first_name = get_random_first_name();
+		(*phonebook + *count)->patronymic = get_random_patronymic();
+		(*phonebook + *count)->street = get_random_street();
+		(*phonebook + *count)->bld = int_to_str(get_rand(0, 300));
+		(*phonebook + *count)->ap = int_to_str(get_rand(0, 150));
+		(*phonebook + *count)->phone = int_to_str(get_rand(111111, 999999));
+		++*count;
 	}
 
-	*count += add_count;
 	return REDRAW;
 }
 
@@ -705,5 +738,5 @@ char* int_to_str(__int64 num)
 }
 
 int get_rand(int left, int right) {
-	return rand() % (right - left + 1) + left;
+	return rand() * rand() % (right - left + 1) + left;
 }
