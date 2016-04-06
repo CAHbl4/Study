@@ -1,8 +1,7 @@
 ﻿#include <stdio.h>
 #include <windows.h>
 #include <conio.h>
-#include <locale.h>
-#include <iostream>
+#include <math.h>
 
 /*
 *
@@ -24,6 +23,11 @@ enum state {
 	EXIT,
 	REDRAW,
 	CONTINUE
+};
+
+enum datatypes {
+	INTEGER,
+	STRING
 };
 
 typedef state(*event_cb_t)(void *data, void* params);
@@ -50,16 +54,43 @@ typedef struct menu {
 typedef struct phonebook_item {
 	char* first_name;
 	char* last_name;
-	char* surname;
+	char* patronymic;
 	char* street;
-	size_t bld;
-	size_t ap;
+	char* bld;
+	char* ap;
 	char* phone;
 } phonebook_item_t;
 
+typedef struct table_column {
+	char text[50];
+	void* data_source;
+	datatypes data_type;
+	size_t min_width;
+	size_t max_width;
+	size_t print_width;
+} table_column_t;
+
+typedef struct table {
+	table_column_t* columns;
+	size_t cols;
+	size_t rows;
+	size_t width;
+} table_t;
+
 
 state add_record(void* data, void* param);
+state add_test_records(void* data, void* param);
 state print_records(void* data, void* param);
+
+char* get_random_first_name();
+char* get_random_last_name();
+char* get_random_patronymic();
+char* get_random_street();
+
+table_t* table_create(size_t width, size_t rows);
+void table_add_column(table_t* table, char text[50], void* data_source, datatypes data_type, size_t min_width, size_t max_width);
+void table_print(table_t* table, size_t screen_width);
+size_t table_column_get_width(table_column_t* col, size_t rows);
 
 state exit_program(void* data, void* params);
 state exit_sub(void* data, void* params);
@@ -78,6 +109,10 @@ __int64 read_int(FILE* fp);
 char* read_string(FILE* fp);
 void flush_stream(FILE* fp);
 
+size_t num_char_count(__int64 num);
+char* int_to_str(__int64 num);
+int get_rand(int left, int right);
+
 int main() {
 	phonebook_item_t* phonebook = NULL;
 	size_t count = 0;
@@ -89,6 +124,7 @@ int main() {
 	}
 
 	menu_add_item(main_menu, Rus("Добавить запись"), &add_record, &phonebook, &count);
+	menu_add_item(main_menu, Rus("Добавить тестовые записи"), &add_test_records, &phonebook, &count);
 	menu_add_item(main_menu, Rus("Вывести записи"), &print_records, &phonebook, &count);
 	menu_add_item(main_menu, "Exit", &exit_program, NULL, NULL);
 
@@ -105,23 +141,61 @@ state print_records(void* data, void* param)
 	size_t* count = (size_t*)param;
 
 	size_t i;
-	printf(RusW(L"╔═══╤══════════════╤══════════════╤══════════════╤══════════════╤═══╤═══╤══════╗\n"));
-	printf(RusW(L"║ № │   ФАМИЛИЯ    │     ИМЯ      │   ОТЧЕСТВО   │    УЛИЦА     │ДОМ│КВ.│ТЕЛЕФО║\n"));
-	printf(RusW(L"╠═══╪══════════════╪══════════════╪══════════════╪══════════════╪═══╪═══╪══════╣\n"));
+	table_t* table = table_create(0, *count);
+
+	int* n				= (int*)calloc(*count, sizeof(int));
+	char** last_names	= (char**)calloc(*count, sizeof(char**));
+	char** first_names	= (char**)calloc(*count, sizeof(char**));
+	char** patronymic = (char**)calloc(*count, sizeof(char**));
+	char** streets		= (char**)calloc(*count, sizeof(char**));
+	char** blds			= (char**)calloc(*count, sizeof(char**));
+	char** aps			= (char**)calloc(*count, sizeof(char**));
+	char** phones		= (char**)calloc(*count, sizeof(char**));
+
+	table_add_column(table, Rus("№"),		n,			INTEGER, 0, 5);
+	table_add_column(table, Rus("ФАМИЛИЯ"),	last_names, STRING, 5, 0);
+	table_add_column(table, Rus("ИМЯ"),		first_names,STRING, 5, 0);
+	table_add_column(table, Rus("ОТЧЕСТВО"),patronymic, STRING, 5, 0);
+	table_add_column(table, Rus("УЛИЦА"),	streets,	STRING, 5, 0);
+	table_add_column(table, Rus("ДОМ"),		blds,		STRING, 3, 6);
+	table_add_column(table, Rus("КВ."),		aps,		STRING, 3, 6);
+	table_add_column(table, Rus("ТЕЛЕФОН"), phones,		STRING, 6, 7);
 
 	for (i = 0; i < *count; ++i)
 	{
-		printf(RusW(L"║%3d│%-14s│%-14s│%-14s│%-14s│%3d│%3d│%6s║\n"),
-			i + 1,
-			(*phonebook + i)->last_name,
-			(*phonebook + i)->first_name,
-			(*phonebook + i)->surname,
-			(*phonebook + i)->street,
-			(*phonebook + i)->bld,
-			(*phonebook + i)->ap,
-			(*phonebook + i)->phone);
+		*(n + i)			= i + 1;
+		*(last_names + i)	= (*phonebook + i)->last_name;
+		*(first_names + i)	= (*phonebook + i)->first_name;
+		*(patronymic + i)	= (*phonebook + i)->patronymic;
+		*(streets + i)		= (*phonebook + i)->street;
+		*(blds + i)			= (*phonebook + i)->bld;
+		*(aps + i)			= (*phonebook + i)->ap;
+		*(phones + i)		= (*phonebook + i)->phone;
 	}
-	printf(RusW(L"╚═══╧══════════════╧══════════════╧══════════════╧══════════════╧═══╧═══╧══════╝\n"));
+
+	size_t sreen_width;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	int ret;
+	ret = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	if (ret)
+	{
+		sreen_width = csbi.dwSize.X;
+	} else {
+		sreen_width = 110;
+	}
+	table_print(table, sreen_width);
+
+	free(n);
+	free(last_names);
+	free(first_names);
+	free(patronymic);
+	free(streets);
+	free(blds);
+	free(aps);
+	free(phones);
+
+	free(table);
+
 	system("pause");
 	return REDRAW;
 }
@@ -140,22 +214,271 @@ state add_record(void* data, void* param) {
 	(*phonebook + *count)->first_name = read_string(stdin);
 
 	printf(Rus("Введите отчество: "));
-	(*phonebook + *count)->surname = read_string(stdin);
+	(*phonebook + *count)->patronymic = read_string(stdin);
 
 	printf(Rus("Введите улицу: "));
 	(*phonebook + *count)->street= read_string(stdin);
 
 	printf(Rus("Введите номер дома: "));
-	(*phonebook + *count)->bld = read_int(stdin);
+	(*phonebook + *count)->bld = read_string(stdin);
 
 	printf(Rus("Введите номер квартиры: "));
-	(*phonebook + *count)->ap = read_int(stdin);
+	(*phonebook + *count)->ap = read_string(stdin);
 
 	printf(Rus("Введите телефон: "));
 	(*phonebook + *count)->phone = read_string(stdin);
 
 	++*count;
 	return REDRAW;
+}
+
+state add_test_records(void* data, void* param) {
+	system("cls");
+	phonebook_item_t** phonebook = (phonebook_item_t**)data;
+	size_t* count = (size_t*)param;
+	size_t add_count, i;
+	printf(Rus("Сколько записей добавить: "));
+	add_count = read_int(stdin);
+	*phonebook = (phonebook_item_t*)realloc(*phonebook, sizeof(phonebook_item_t) * (*count + add_count));
+
+	for (i = 0; i < add_count; ++i) {
+		(*phonebook + *count + i)->last_name = get_random_last_name();
+		(*phonebook + *count + i)->first_name = get_random_first_name();
+		(*phonebook + *count + i)->patronymic = get_random_patronymic();
+		(*phonebook + *count + i)->street = get_random_street();
+		(*phonebook + *count + i)->bld = int_to_str(get_rand(0, 300));
+		(*phonebook + *count + i)->ap = int_to_str(get_rand(0, 150));
+		(*phonebook + *count + i)->phone = int_to_str(get_rand(111111, 999999));
+	}
+
+	*count += add_count;
+	return REDRAW;
+}
+
+char* get_random_first_name() {
+	static const char* names[] = { "Александр", "Алексей", "Виктор", "Михаил", "Иван"};
+	size_t count = 5;
+	size_t i = rand() % count;
+	char* result = (char*)malloc(sizeof(char) * strlen(names[i]));
+	strcpy(result, Rus(names[i]));
+	return result;
+}
+
+char* get_random_last_name() {
+	static const char* names[] = { "Иванов", "Пржевальский", "Пушкин", "Лермонтнов", "Сидоров" };
+	size_t count = 5;
+	size_t i = rand() % count;
+	char* result = (char*)malloc(sizeof(char) * strlen(names[i]));
+	strcpy(result, Rus(names[i]));
+	return result;
+}
+
+char* get_random_patronymic() {
+	static const char* names[] = { "Петрович", "Александрович", "Ильич", "Иванович", "Николаевич" };
+	size_t count = 5;
+	size_t i = rand() % count;
+	char* result = (char*)malloc(sizeof(char) * strlen(names[i]));
+	strcpy(result, Rus(names[i]));
+	return result;
+}
+
+char* get_random_street() {
+	static const char* names[] = { "Советская", "Интернациональная", "Лесная", "Царская", "Рабочая" };
+	size_t count = 5;
+	size_t i = rand() % count;
+	char* result = (char*)malloc(sizeof(char) * strlen(names[i]));
+	strcpy(result, Rus(names[i]));
+	return result;
+}
+
+table_t* table_create(size_t width, size_t rows) {
+	table_t* new_table = (table_t*)malloc(sizeof(table_t));
+	if (!new_table) {
+		return NULL;
+	}
+
+	new_table->columns = NULL;
+	new_table->cols = 0;
+	new_table->width = width;
+	new_table->rows = rows;
+	return new_table;
+}
+
+void table_add_column(table_t* table, char text[50], void* data_source, datatypes data_type, size_t min_width, size_t max_width) {
+	table->columns = (table_column_t*)realloc(table->columns, sizeof(table_column_t) * (table->cols + 1));
+	strcpy((table->columns + table->cols)->text, text);
+	(table->columns + table->cols)->data_source = data_source;
+	(table->columns + table->cols)->data_type = data_type;
+	(table->columns + table->cols)->min_width = min_width;
+	(table->columns + table->cols)->max_width = max_width;
+	(table->columns + table->cols)->print_width = min_width;
+	++table->cols;
+}
+
+void table_print(table_t* table, size_t screen_width) {
+	system("cls");
+	size_t table_width = 1;
+	size_t width, i, j;
+	for (i = 0; i < table->cols; ++i) {
+		width = table_column_get_width(table->columns + i, table->rows);
+		if ((table->columns + i)->max_width && width > (table->columns + i)->max_width) {
+			(table->columns + i)->print_width = (table->columns + i)->max_width;
+		}
+		else if (width > (table->columns + i)->min_width) {
+			(table->columns + i)->print_width = width;
+		}
+		table_width += (table->columns + i)->print_width + 1;
+	}
+
+	if (table->width) {
+		while (table_width < table->width) {
+			for (i = 0; i < table->cols; ++i) {
+				if ((table->columns + i)->data_type == STRING) {
+					if (!(table->columns + i)->max_width ||
+						(table->columns + i)->print_width < (table->columns + i)->max_width) {
+						++(table->columns + i)->print_width;
+						++table_width;
+					}
+					if (table_width == table->width)
+						break;
+				}
+			}
+		}
+
+		size_t resize;
+		while (table_width > table->width) {
+			resize = 0;
+			for (i = 0; i < table->cols; ++i) {
+				if ((table->columns + i)->data_type == STRING) {
+					if ((table->columns + i)->print_width >(table->columns + i)->min_width) {
+						--(table->columns + i)->print_width;
+						--table_width;
+					}
+					if (table_width == table->width)
+						break;
+					resize += (table->columns + i)->print_width - (table->columns + i)->min_width;
+				}
+			}
+			if (!resize)
+				break;
+		}
+	}
+
+	if(!table->width) {
+		while(table_width < screen_width) {
+			for (i = 0; i < table->cols; ++i) {
+				if(!(table->columns + i)->max_width ||
+					(table->columns + i)->print_width < (table->columns + i)->max_width) {
+					++(table->columns + i)->print_width;
+					++table_width;
+				}
+			}
+		}
+	}
+
+	printf(RusW(L"╔"));
+	for (i = 0; i < table->cols; ++i) {
+		for (j = 0; j < (table->columns + i)->print_width; ++j) {
+			printf(RusW(L"═"));
+		}
+		if (i + 1 == table->cols) {
+			printf(RusW(L"╗\n"));
+		}
+		else {
+			printf(RusW(L"╤"));
+		}
+	}
+
+	printf(RusW(L"║"));
+	for (i = 0; i < table->cols; ++i) {
+		printf("%-*.*s", (table->columns + i)->print_width, (table->columns + i)->print_width, (table->columns + i)->text);
+
+		if (i + 1 == table->cols) {
+			printf(RusW(L"║\n"));
+		}
+		else {
+			printf(RusW(L"│"));
+		}
+	}
+
+	printf(RusW(L"╠"));
+	for (i = 0; i < table->cols; ++i) {
+		for (j = 0; j < (table->columns + i)->print_width; ++j) {
+			printf(RusW(L"═"));
+		}
+		if (i + 1 == table->cols) {
+			printf(RusW(L"╣\n"));
+		}
+		else {
+			printf(RusW(L"╪"));
+		}
+	}
+
+	for (j = 0; j < table->rows; ++j) {
+		printf(RusW(L"║"));
+		for (i = 0; i < table->cols; ++i) {
+			if ((table->columns + i)->data_type == INTEGER) {
+				printf("%*d",
+					(table->columns + i)->print_width,
+					*((int*)(table->columns + i)->data_source + j)
+					);
+			}
+
+			if ((table->columns + i)->data_type == STRING) {
+				printf("%-*.*s",
+					(table->columns + i)->print_width,
+					(table->columns + i)->print_width,
+					*((char**)(table->columns + i)->data_source + j)
+					);
+			}
+
+			if (i + 1 == table->cols) {
+				printf(RusW(L"║\n"));
+			}
+			else {
+				printf(RusW(L"│"));
+			}
+		}
+	}
+
+	printf(RusW(L"╚"));
+	for (i = 0; i < table->cols; ++i) {
+		for (j = 0; j < (table->columns + i)->print_width; ++j) {
+			printf(RusW(L"═"));
+		}
+		if (i + 1 == table->cols) {
+			printf(RusW(L"╝\n"));
+		}
+		else {
+			printf(RusW(L"╧"));
+		}
+	}
+}
+
+size_t table_column_get_width(table_column_t* col, size_t rows) {
+	size_t i, max_width = 0, width;
+	switch (col->data_type)
+	{
+	case INTEGER:
+		for (i = 0; i < rows; ++i) {
+			width = num_char_count(*((int*)col->data_source + i));
+			if (width > max_width) {
+				max_width = width;
+			}
+		}
+		break;
+	case STRING:
+		for (i = 0; i < rows; ++i) {
+			width = strlen(*((char**)col->data_source + i));
+			if (width > max_width) {
+				max_width = width;
+			}
+		}
+		break;
+	default:
+		break;
+	}
+	return max_width;
 }
 
 state exit_program(void*, void*)
@@ -349,4 +672,38 @@ __int64 read_int(FILE* fp) {
 
 void flush_stream(FILE* fp) {
 	fseek(fp, 0, SEEK_END);
+}
+
+size_t num_char_count(__int64 num)
+{
+	size_t count = 1;
+	if (num)
+	{
+		count = (size_t)(floorl(log10((double)llabs(num))) + 1);
+		if (num < 0)
+			++count;
+	}
+	return count;
+}
+
+char* int_to_str(__int64 num)
+{
+	size_t length = num_char_count(num) - 1;
+	char* str = (char*)calloc(length + 2, sizeof(char));
+	if (num < 0)
+		*str = '-';
+	if (!num)
+		*str = '0';
+
+	num = llabs(num);
+	while (num)
+	{
+		*(str + length--) = '0' + num % 10;
+		num /= 10;
+	}
+	return str;
+}
+
+int get_rand(int left, int right) {
+	return rand() % (right - left + 1) + left;
 }
