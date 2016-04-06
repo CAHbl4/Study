@@ -182,7 +182,7 @@ state print_records(void* data, void* param)
 	ret = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
 	if (ret)
 	{
-		sreen_width = csbi.dwSize.X - 4;
+		sreen_width = csbi.dwSize.X - 1;
 	} else {
 		sreen_width = 110;
 	}
@@ -298,7 +298,7 @@ char* get_random_first_name() {
 }
 
 char* get_random_last_name() {
-	static const char* names[] = { "Иванов", "Пржевальский", "Пушкин", "Лермонтнов", "Сидоров" };
+	static const char* names[] = { "Иванов", "Пржевальский", "Пушкин", "Лермонтов", "Сидоров" };
 	size_t count = 5;
 	size_t i = rand() % count;
 	char* result = (char*)malloc(sizeof(char) * strlen(names[i]));
