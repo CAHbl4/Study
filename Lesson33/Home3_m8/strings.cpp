@@ -1,5 +1,4 @@
 #include <string.h>
-#include <math.h>
 #include "utils.h"
 #include <malloc.h>
 
@@ -131,7 +130,7 @@ char* int_to_str(__int64 num)
 	if (!num)
 		*str = '0';
 
-	num = llabs(num);
+	num = _llabs(num);
 	while(num)
 	{
 		*(str + length--) = '0' + num % 10;

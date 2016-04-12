@@ -22,4 +22,14 @@ __int8 is_letter(char ch);
  */
 void* free_ptr_ptr(void **ptr, size_t count);
 
+/**
+* Returns x ^ y
+*/
+__int64 pow(__int64 x, __int64 y);
+
+/**
+* Returns absolute
+*/
+__int64 _llabs(__int64 x);
+
 #endif
