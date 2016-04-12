@@ -275,10 +275,6 @@ size_t num_char_count(__int64 num)
 
 __int64 pow(__int64 base, __int64 exp)
 {
-	if (!exp) {
-		return 0;
-	}
-
 	__int64 result = 1;
 	while (exp)
 	{
