@@ -1,50 +1,36 @@
-﻿#include <stdio.h>
-#include <windows.h>
+﻿#include <iostream>
+using namespace std;
 
 /*
-*
-* amatu, 09.03.2016 10:59:32
+Описать функцию Leng(xA, yA, xB, yB) вещественного типа, находящую длину отрезка AB на плоскости по координатам его концов.
+
 */
 
-void main()
-{
-	long *pl;
-	int i;
+double length(int x1, int y1, int x2, int y2);
 
-	//Выделяем память под динамический массив.
-	pl = (long*)calloc(10, sizeof(long));
-	if (pl)
-	{
-		// память выделена, можем с ней работать
-		for (i = 0; i<10; i++)
-			pl[i] = i * 2;
-		for (i = 0; i<10; i++)
-			printf("pl[%d]=%ld\n", i, *(pl + i));
-		// Теперь нам необходимо увеличить размер массива
-		pl = (long*) realloc(pl, 20 * sizeof(long));
-		if (pl)
-		{
-			//Работаем с увеличенным массивом. 
-			// Старые значения сохранились, дополним их новыми.
-			for (i = 10; i<20; i++)
-				pl[i] = i * 2 + 1;
-			for (i = 0; i<20; i++)
-				printf("pl[%d]=%ld\n", i, *(pl + i));
+void main() {
+	setlocale(LC_CTYPE, "Rus");
+
+	//Код программы
+	int x1, y1, x2, y2;
+	cout << "Введите x1, y1, x2, y2: ";
+
+	cin >> x1 >> y1 >> x2 >> y2;
+	try {
+		if (cin.fail()) {
+			throw "error";
 		}
-		else
-		{
-			// В данном случае память не освобождаем, т.к. 
-			// она была уже освобождена в функции realloc,
-			// после чего realloc вышла с ошибкой, не выделив
-			// память заново.
-			return;
-		}
-		// В конце работы освобождаем память, 
-		// на которую указывает pl
-		free(pl);
+		cout << "Длинна отрезка: " << length(x1, y1, x2, y2);
 	}
-	else
-	{
-		printf("Недостаточно памяти\n");
+	catch (char* error) {
+		cout << error << endl;
 	}
+
+	cout << endl;
+	system("pause");
+}
+
+double length(int x1, int y1, int x2, int y2)
+{
+	return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
 }

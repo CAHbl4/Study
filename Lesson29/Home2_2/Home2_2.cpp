@@ -1,6 +1,5 @@
 ﻿#include <stdio.h>
 #include <windows.h>
-#include <math.h>
 
 
 /*
@@ -36,8 +35,12 @@ UINT8	read_array	(int *arr, size_t n);
 void	print_array	(int *arr, size_t n, UINT16 zone, UINT8 width);
 UINT64	func_v13	(int *arr, size_t n, UINT16 zone);
 UINT16	get_zone	(size_t i, size_t j, size_t n);
-int		read_int	();
+__int64 read_int(FILE* fp);
 char*	Rus			(const char* text);
+void	flush_stream(FILE* fp);
+
+size_t	num_char_count(__int64 num);
+__int64 pow(__int64 x, __int64 y);
 
 //Переменные для настройки консоли
 HANDLE	hConsole;
@@ -60,7 +63,7 @@ void main()
 	printf(Rus("Введите размер матрицы (%d...%d). N: "), MIN_SIZE, MAX_SIZE);
 	do
 	{
-		n = (size_t)read_int();
+		n = (size_t)read_int(stdin);
 		if (n < MIN_SIZE || n > MAX_SIZE)
 			printf(Rus("Неверный размер. Размер должен быть в диапазоне "
 				"от %d до %d. Повторите ввод: \n"), MIN_SIZE, MAX_SIZE);
@@ -93,19 +96,14 @@ void main()
 UINT8 read_array(int *arr, size_t n)
 {
 	size_t i, j;
-	UINT8 tmp = 0, width = 1;
+	UINT8 tmp, width = 1;
 	for (i = 0; i < n; ++i)
 	{
 		for (j = 0; j < n; ++j)
 		{
 			printf("arr[%d][%d]: ", i, j);
-			*(arr + i * MAX_SIZE + j) = read_int();
-			if (*(arr + i * MAX_SIZE + j))
-			{
-				tmp = (UINT8)(floor(log10(abs(*(arr + i * MAX_SIZE + j)))) + 1);
-				if (*(arr + i * MAX_SIZE + j) < 0)
-					++tmp;
-			}
+			*(arr + i * MAX_SIZE + j) = read_int(stdin);
+			tmp = num_char_count(*(arr + i * MAX_SIZE + j));
 			if (tmp > width)
 				width = tmp;
 		}
@@ -212,24 +210,41 @@ UINT16 get_zone(size_t i, size_t j, size_t n)
 *
 *  returns: целое число
 */
-int read_int()
+__int64 read_int(FILE* fp)
 {
-	int n;
-	int result;
+	__int64 n = 0;
+	__int8 result;
+	char ch;
 	do
 	{
-		result = scanf("%d", &n);
+		result = fscanf(fp, "%lld", &n);
 		if (result == EOF)
 		{
-			printf(Rus("Неверный ввод. Повторите: \n"));
+			fprintf(stderr, "Unexpected EOF\n");
+			exit(74);
 		}
 		if (result == 0)
 		{
-			while (fgetc(stdin) != '\n');
-			printf(Rus("Введите целое число: \n"));
+			do
+			{
+				ch = fgetc(fp);
+			} while (ch <= '0' && ch >= '9');
+			fprintf(stderr, "Incorrect symbol\n");
 		}
-	} while (result == EOF || result == 0);
+	} while (!result);
+
+	flush_stream(fp);
+
 	return n;
+}
+
+
+/**
+* Flushes the given stream
+*/
+void flush_stream(FILE* fp)
+{
+	fseek(fp, 0, SEEK_END);
 }
 
 
@@ -247,4 +262,35 @@ char* Rus(const char* text)
 {
 	CharToOemA(text, bufRus);
 	return bufRus;
+}
+
+size_t num_char_count(__int64 num)
+{
+	size_t count = 0;
+	if (num < 0)
+		++count;
+	do {
+		++count;
+		num /= 10;
+	} while (num);
+	return count;
+}
+
+
+__int64 pow(__int64 base, __int64 exp)
+{
+	if (!exp) {
+		return 0;
+	}
+
+	__int64 result = 1;
+	while (exp)
+	{
+		if (exp & 1)
+			result *= base;
+		exp >>= 1;
+		base *= base;
+	}
+
+	return result;
 }
