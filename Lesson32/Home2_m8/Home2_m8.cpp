@@ -305,3 +305,13 @@ char* Rus(const char* text)
 	return bufRus;
 }
 
+int word_length(char* str, char* sep)
+{
+	int count = 0;
+	while (!strchr(sep, *str) && *str != '\0')
+	{
+		++count;
+		++str;
+	}
+	return count;
+}

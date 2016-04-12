@@ -1,6 +1,5 @@
 ﻿#include <stdio.h>
 #include <windows.h>
-#include <math.h>
 
 /*
 * Домашнее задание №3 к модулю  №7
@@ -12,7 +11,7 @@
 #define MAX_ELEMENTS	25
 #define HALT			""
 
-typedef int (*count_f)(int, void*);
+typedef int(*count_f)(int, void*);
 
 int* read_array(int* arr, int* count);
 int* parse_ints(int* nums, char* str, int* count);
@@ -26,6 +25,8 @@ int count_nums(int* arr, int count, count_f f, void* param);
 
 int f13(int x, void* param);
 char* Rus(const char* text);
+
+__int64 pow(__int64 base, __int64 exp);
 
 void main()
 {
@@ -82,7 +83,7 @@ int* read_array(int* arr, int* count)
 }
 
 
-/*																																		
+/*
 * Function:  parse_ints
 * --------------------
 * Парсит все целые из строки и сохраняет их в массив
@@ -140,7 +141,7 @@ int* parse_ints(int* nums, char* str, int* count)
 
 
 /*
-* Function:  read_int
+* Function:  str_to_int
 * --------------------
 * Конвертирует строку в целое число
 *
@@ -301,4 +302,18 @@ char* Rus(const char* text)
 {
 	CharToOemA(text, bufRus);
 	return bufRus;
+}
+
+__int64 pow(__int64 base, __int64 exp)
+{
+	__int64 result = 1;
+	while (exp)
+	{
+		if (exp & 1)
+			result *= base;
+		exp >>= 1;
+		base *= base;
+	}
+
+	return result;
 }
