@@ -191,7 +191,7 @@ state print_bests(void* data, void* param) {
 			}
 		}
 	}
-	print_records(&bests, &name);
+	print_records(&bests, name);
 	free(bests.records);
 	return REDRAW;
 }
@@ -217,7 +217,7 @@ state print_bads(void* data, void* param) {
 			++bads.count;
 		}
 	}
-	print_records(&bads, &name);
+	print_records(&bads, name);
 	free(bads.records);
 	return REDRAW;
 }
