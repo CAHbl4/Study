@@ -67,7 +67,7 @@ typedef struct menu {
 } menu_t;
 
 typedef struct field_input {
-	char input_buffer[65];
+	char input_buffer[50];
 } field_input_t;
 
 typedef struct field_checkbox {
@@ -77,6 +77,7 @@ typedef struct field_checkbox {
 typedef struct field_radio {
 	size_t radio_id;
 	__int8 checked;
+	int		radio_data;
 } field_radio_t;
 
 typedef struct field_item {
@@ -96,6 +97,8 @@ typedef struct form {
 	struct field_item*	selected;
 	struct field_item*	prev_selected;
 	state				form_state;
+	event_cb*	action;
+	char		action_text[50];
 } form_t;
 
 typedef struct table_column {
@@ -115,6 +118,21 @@ typedef struct table {
 	size_t			width;
 } table_t;
 
+enum CASE {
+	AT,
+	ATX
+};
+
+enum VIDEO {
+	ONBOARD,
+	AGP,
+	PCI_E
+};
+
+typedef struct pc {
+	CASE pc_case : 1;
+	VIDEO pc_video : 2;
+} pc_t;
 
 
 table_t*	table_create(size_t width, size_t rows, char name[50]);
@@ -132,7 +150,7 @@ state	menu_execute(void* menu, void* params);
 void	menu_free(menu_t* menu);
 
 void	form_add_item(form_t* form, char text[50], field_types type, void* data);
-form_t* form_create(char text[50]);
+form_t* form_create(char text[50], event_cb_t action, void* data, void* params, char cb_text[50]);
 void form_show(form_t* form, int key_code);
 state	form_execute(void* form, void* params);
 void	form_free(form_t* form);
@@ -159,6 +177,10 @@ __int8 is_valid_char(int ch);
 
 void set_console_size(size_t x, size_t y);
 void make_borders(char* text);
+form_t* create_empty_pc_form(void* data, void* params);
+state add_record_form(void* data, void* params);
+state add_record_cb(void* data, void* params);
+
 
 //Переменные для настройки консоли
 HANDLE	hConsole;
@@ -175,58 +197,73 @@ int main() {
 
 	set_console_size(CONSOLE_WIDTH, CONSOLE_HEIGTH);
 
-	form_t* form = form_create("Test form");
-
-	field_input_t* input1 = (field_input_t*)calloc(1, sizeof(field_input_t));
-	form_add_item(form, "Input 1", INPUTFIELD, input1);
-
-	field_checkbox_t* checkbox1 = (field_checkbox_t*)calloc(1, sizeof(field_checkbox_t));
-	form_add_item(form, "Checkbox 1", CHECKBOX, checkbox1);
-
-	field_checkbox_t* checkbox2 = (field_checkbox_t*)calloc(1, sizeof(field_checkbox_t));
-	form_add_item(form, "Checkbox 2", CHECKBOX, checkbox2);
-
-	form_add_item(form, "----------------", SEPARATOR, NULL);
-
-	field_radio_t* radio1 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
-	radio1->radio_id = 1;
-	form_add_item(form, "Radio 1", RADIO, radio1);
-
-	field_radio_t* radio2 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
-	radio2->radio_id = 1;
-	form_add_item(form, "Radio 2", RADIO, radio2);
-
-	field_radio_t* radio3 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
-	radio3->radio_id = 1;
-	form_add_item(form, "Radio 3", RADIO, radio3);
-
-	field_radio_t* aradio1 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
-	aradio1->radio_id = 2;
-	form_add_item(form, "Another Radio 1", RADIO, aradio1);
-
-	field_radio_t* aradio2 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
-	aradio2->radio_id = 2;
-	form_add_item(form, "Another Radio 2", RADIO, aradio2);
-
-	field_radio_t* aradio3 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
-	aradio3->radio_id = 2;
-	form_add_item(form, "Another Radio 3", RADIO, aradio3);
+	pc_t* db;
 
 	//Создаем меню
 	menu_t* main_menu = menu_create("Главное меню");
 
 	//Добавляем пункты в меню
-	menu_add_item(main_menu, Rus("Показать форму"), &form_execute, form, NULL);
+	menu_add_item(main_menu, Rus("Добавить запись"), &add_record_form, &db, NULL);
 
 	menu_add_item(main_menu, "Exit", &exit_program, NULL, NULL);
 
 	//Выполняем меню
 	menu_execute(main_menu, NULL);
 
-	form_free(form);
+
 	menu_free(main_menu);
 
 	return 0;
+}
+
+state add_record_form(void* data, void* params) {
+	form_t* add_form = create_empty_pc_form(data, params);
+
+	form_execute(add_form, NULL);
+
+	form_free(add_form);
+	return EXIT;
+}
+
+state add_record_cb(void* data, void* params) {
+
+	return EXIT;
+}
+
+form_t* create_empty_pc_form(void* data, void* params){
+	form_t* form = form_create("Добавление компьютера", &add_record_cb, data, params, "Сохранить");
+
+	field_input_t* input1 = (field_input_t*)calloc(1, sizeof(field_input_t));
+	form_add_item(form, Rus("Наименование"), INPUTFIELD, input1);
+
+	form_add_item(form, Rus("Корпус:"), SEPARATOR, NULL);
+	field_radio_t* radio1_1 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
+	radio1_1->radio_id = 1;
+	radio1_1->radio_data = AT;
+	form_add_item(form, "IT", RADIO, radio1_1);
+
+	field_radio_t* radio1_2 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
+	radio1_2->radio_id = 1;
+	radio1_2->radio_data = ATX;
+	form_add_item(form, "ATX", RADIO, radio1_2);
+
+	form_add_item(form, Rus("Видео:"), SEPARATOR, NULL);
+	field_radio_t* radio2_1 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
+	radio2_1->radio_id = 2;
+	radio2_1->radio_data = ONBOARD;
+	form_add_item(form, Rus("Встроенное"), RADIO, radio2_1);
+
+	field_radio_t* radio2_2 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
+	radio2_2->radio_id = 2;
+	radio2_2->radio_data = AGP;
+	form_add_item(form, "AGP", RADIO, radio2_2);
+
+	field_radio_t* radio2_3 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
+	radio2_3->radio_id = 2;
+	radio2_3->radio_data = PCI_E;
+	form_add_item(form, "PCI-Express", RADIO, radio2_3);
+
+	return form;
 }
 
 
@@ -528,7 +565,7 @@ void form_add_item(form_t* form, char text[50], field_types type, void* data) {
 	}
 }
 
-form_t* form_create(char text[50]) {
+form_t* form_create(char text[50], event_cb_t action, void* data, void* params, char cb_text[50]) {
 	form_t* new_form = (form_t*)calloc(1, sizeof(form_t));
 	if (!new_form) {
 		return NULL;
@@ -537,6 +574,11 @@ form_t* form_create(char text[50]) {
 	strcpy_s(new_form->name, text);
 	new_form->head = NULL;
 	new_form->selected = NULL;
+	new_form->action = (event_cb*)malloc(sizeof(event_cb));
+	new_form->action->cb = action;
+	new_form->action->data = data;
+	new_form->action->params = params;
+	strcpy_s(new_form->action_text, cb_text);
 	new_form->form_state = REDRAW_ALL;
 	return new_form;
 }
@@ -582,7 +624,6 @@ void form_show(form_t* form, int key_code) {
 			current = current->next;
 		}
 		form->form_state = CONTINUE;
-
 	} else if (form->form_state == REDRAW_SELECTED) {
 		field_item_t* current = form->head;
 
