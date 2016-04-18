@@ -9,6 +9,9 @@
 */
 
 
+#define CONSOLE_WIDTH	80
+#define CONSOLE_HEIGTH	25
+
 #define HALT ""
 
 enum keys {
@@ -24,7 +27,8 @@ enum keys {
 
 enum state {
 	EXIT,
-	REDRAW,
+	REDRAW_ALL,
+	REDRAW_SELECTED,
 	CONTINUE
 };
 
@@ -57,11 +61,12 @@ typedef struct menu {
 	char				name[50];
 	struct menu_item*	head;
 	struct menu_item*	selected;
+	struct menu_item*	prev_selected;
 	state				menu_state;
 } menu_t;
 
 typedef struct field_input {
-	char input_buffer[80];
+	char input_buffer[70];
 } field_input_t;
 
 typedef struct field_checkbox {
@@ -152,18 +157,23 @@ __int64 pow(__int64 base, __int64 exp);
 int* parse_ints(int* nums, char* str, int* count);
 __int8 is_valid_char(int ch);
 
+void set_console_size(size_t x, size_t y);
+void make_borders(char* text);
+
 //Переменные для настройки консоли
 HANDLE	hConsole;
-WORD	currentConsoleAttr = 0;
-#define HIGHLIGHT_COLOR		FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
+CONSOLE_SCREEN_BUFFER_INFO csbi;
+CONSOLE_CURSOR_INFO cci;
+
+#define HIGHLIGHT_COLOR		BACKGROUND_GREEN	| BACKGROUND_BLUE	| 0
+#define DEFAULT_COLOR		BACKGROUND_BLUE | FOREGROUND_BLUE	| FOREGROUND_GREEN	| FOREGROUND_RED	| FOREGROUND_INTENSITY
 
 int main() {
 	//Сохраняем текущие параметры консоли
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	if (GetConsoleScreenBufferInfo(hConsole, &csbi))
-		currentConsoleAttr = csbi.wAttributes;
+	SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
 
+	set_console_size(CONSOLE_WIDTH, CONSOLE_HEIGTH);
 
 	form_t* form = form_create("Test form");
 
@@ -201,7 +211,7 @@ int main() {
 	form_add_item(form, "Another Radio 3", RADIO, aradio3);
 
 	//Создаем меню
-	menu_t* main_menu = menu_create(Rus("Главное меню"));
+	menu_t* main_menu = menu_create("Главное меню");
 
 	//Добавляем пункты в меню
 	menu_add_item(main_menu, Rus("Показать форму"), &form_execute, form, NULL);
@@ -217,6 +227,15 @@ int main() {
 	return 0;
 }
 
+
+void set_console_size(size_t x, size_t y) {
+	char command[20] = { 0 };
+	strcat(command, "mode ");
+	strcat(command, int_to_str(x));
+	strcat(command, ", ");
+	strcat(command, int_to_str(y));
+	system(command);
+}
 
 //Функция создает и инициализирует таблицу и возвращает указатель на нее
 table_t* table_create(size_t width, size_t rows, char name[50]) {
@@ -516,12 +535,12 @@ form_t* form_create(char text[50]) {
 	strcpy_s(new_form->name, text);
 	new_form->head = NULL;
 	new_form->selected = NULL;
-	new_form->form_state = REDRAW;
+	new_form->form_state = REDRAW_ALL;
 	return new_form;
 }
 
 void form_show(form_t* form, int key_code) {
-	if (form->form_state == REDRAW) {
+	if (form->form_state == REDRAW_ALL) {
 		system("cls");
 		printf("===%s=== code[%d]\n", form->name, key_code);
 		field_item_t* current = form->head;
@@ -546,7 +565,7 @@ void form_show(form_t* form, int key_code) {
 			}
 
 			if (current == form->selected) 
-				SetConsoleTextAttribute(hConsole, currentConsoleAttr);
+				SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
 			printf("\n");
 			current = current->next;
 		}
@@ -586,6 +605,11 @@ size_t field_get_id(form_t* form, field_item_t* field) {
 state form_execute(void* data, void*) {
 	form_t* form = (form_t*)data;
 	int ch = 0;
+
+	cci.dwSize = 1;
+	cci.bVisible = TRUE;
+	SetConsoleCursorInfo(hConsole, &cci);
+
 	form_show(form, ch);
 
 	do {
@@ -598,21 +622,21 @@ state form_execute(void* data, void*) {
 		case KEY_BACKSPACE:
 			if (form->selected->type == INPUTFIELD) {
 				form->selected->data.input->input_buffer[strlen(form->selected->data.input->input_buffer) - 1] = '\0';
-				form->form_state = REDRAW;
+				form->form_state = REDRAW_ALL;
 			}
 			break;
 		case KEY_SPACE:
 			if (form->selected->type == INPUTFIELD) {
 				if (strlen(form->selected->data.input->input_buffer) < sizeof(form->selected->data.input->input_buffer) - 1)
 					form->selected->data.input->input_buffer[strlen(form->selected->data.input->input_buffer)] = ch;
-				form->form_state = REDRAW;
+				form->form_state = REDRAW_ALL;
 			}
 			if (form->selected->type == CHECKBOX) {
 				if (form->selected->data.checkbox->checked)
 					form->selected->data.checkbox->checked = 0;
 				else
 					form->selected->data.checkbox->checked = 1;
-				form->form_state = REDRAW;
+				form->form_state = REDRAW_ALL;
 			}
 			if (form->selected->type == RADIO) {
 				field_item_t* current = form->head;
@@ -625,7 +649,7 @@ state form_execute(void* data, void*) {
 					current = current->next;
 				}
 				form->selected->data.radio->checked = 1;
-				form->form_state = REDRAW;
+				form->form_state = REDRAW_ALL;
 			}
 			break;
 		case ARROW_UP:
@@ -635,13 +659,13 @@ state form_execute(void* data, void*) {
 					current = current->next;
 				}
 				form->selected = current;
-				form->form_state = REDRAW;
+				form->form_state = REDRAW_ALL;
 			}
 			break;
 		case ARROW_DOWN:
 			if (form->selected->next) {
 				form->selected = form->selected->next;
-				form->form_state = REDRAW;
+				form->form_state = REDRAW_ALL;
 			}
 			break;
 		default:
@@ -649,14 +673,14 @@ state form_execute(void* data, void*) {
 				if (form->selected->type == INPUTFIELD) {
 					if (strlen(form->selected->data.input->input_buffer) < sizeof(form->selected->data.input->input_buffer) - 1)
 						form->selected->data.input->input_buffer[strlen(form->selected->data.input->input_buffer)] = ch;
-					form->form_state = REDRAW;
+					form->form_state = REDRAW_ALL;
 				}
 			}
 			break;
 		}
 		form_show(form, ch);
 	} while (form->form_state);
-	return REDRAW;
+	return REDRAW_ALL;
 }
 
 void form_free(form_t* form) {
@@ -670,6 +694,34 @@ void form_free(form_t* form) {
 		} while (current);
 	}
 	free(form);
+}
+
+void make_borders(char* text) {
+	size_t i, j;
+
+	printf(RusW(L"╔"));
+	for (i = 0; i < (CONSOLE_WIDTH - 3) / 2 - strlen(text) / 2; ++i) {
+		printf(RusW(L"═"));
+	}
+	printf(Rus(text));
+	for (i = 0; i < (CONSOLE_WIDTH - 2) / 2 - strlen(text) / 2; ++i) {
+		printf(RusW(L"═"));
+	}
+	printf(RusW(L"╗\n"));
+
+	for (i = 0; i < CONSOLE_HEIGTH - 3; ++i) {
+		printf(RusW(L"║"));
+		for (j = 0; j < CONSOLE_WIDTH - 3; ++j) {
+			printf(" ");
+		}
+		printf(RusW(L"║\n"));
+	}
+
+	printf(RusW(L"╚"));
+	for (j = 0; j < CONSOLE_WIDTH - 3; ++j) {
+		printf(RusW(L"═"));
+	}
+	printf(RusW(L"╝\n"));
 }
 
 
@@ -710,26 +762,53 @@ menu_t* menu_create(char text[50]) {
 	strcpy_s(new_menu->name, text);
 	new_menu->head = NULL;
 	new_menu->selected = NULL;
-	new_menu->menu_state = REDRAW;
+	new_menu->prev_selected = NULL;
+	new_menu->menu_state = REDRAW_ALL;
 	return new_menu;
 }
 
 void menu_show(menu_t* menu) {
-	if (menu->menu_state == REDRAW) {
+	if (menu->menu_state == REDRAW_ALL) {
 		system("cls");
-		printf("===%s===\n", menu->name);
+		make_borders(menu->name);
 		menu_item_t* current = menu->head;
 
+		COORD coord;
+		coord.X = 1;
+		size_t rows = 1;
+
 		while (current != NULL) {
+			coord.Y = rows++;
+			SetConsoleCursorPosition(hConsole, coord);
 			if (current == menu->selected)
-				printf("[");
-			else
-				printf(" ");
+				SetConsoleTextAttribute(hConsole, HIGHLIGHT_COLOR);
+
 			printf("%s", current->text);
 			if (current == menu->selected)
-				printf("]\n");
-			else
-				printf("\n");
+				SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+			current = current->next;
+		}
+		menu->menu_state = CONTINUE;
+	}
+	else if (menu->menu_state == REDRAW_SELECTED) {
+		menu_item_t* current = menu->head;
+
+		COORD coord;
+		coord.X = 1;
+		size_t rows = 1;
+
+		while (current != NULL) {
+			coord.Y = rows++;
+			SetConsoleCursorPosition(hConsole, coord);
+			if(current == menu->selected || current == menu->prev_selected) {
+				if (current == menu->selected) 
+					SetConsoleTextAttribute(hConsole, HIGHLIGHT_COLOR);
+
+				printf("%s", current->text);
+				if (current == menu->selected)
+					SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+			}
+			
 			current = current->next;
 		}
 		menu->menu_state = CONTINUE;
@@ -738,6 +817,11 @@ void menu_show(menu_t* menu) {
 
 state menu_execute(void* data, void*) {
 	menu_t* menu = (menu_t*)data;
+
+	cci.dwSize = 1;
+	cci.bVisible = FALSE;
+	SetConsoleCursorInfo(hConsole, &cci);
+
 	menu_show(menu);
 
 	do {
@@ -753,20 +837,22 @@ state menu_execute(void* data, void*) {
 				while (current->next != menu->selected) {
 					current = current->next;
 				}
+				menu->prev_selected = menu->selected;
 				menu->selected = current;
-				menu->menu_state = REDRAW;
+				menu->menu_state = REDRAW_SELECTED;
 			}
 			break;
 		case ARROW_DOWN:
 			if (menu->selected->next) {
+				menu->prev_selected = menu->selected;
 				menu->selected = menu->selected->next;
-				menu->menu_state = REDRAW;
+				menu->menu_state = REDRAW_SELECTED;
 			}
 			break;
 		}
 		menu_show(menu);
 	} while (menu->menu_state);
-	return REDRAW;
+	return REDRAW_ALL;
 }
 
 void menu_free(menu_t* menu) {
