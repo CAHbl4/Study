@@ -40,7 +40,8 @@ enum data_types {
 enum field_types {
 	INPUTFIELD,
 	CHECKBOX,
-	RADIO
+	RADIO,
+	SEPARATOR
 };
 
 typedef state(*event_cb_t)(void *data, void* params);
@@ -66,18 +67,16 @@ typedef struct menu {
 } menu_t;
 
 typedef struct field_input {
-	char input_buffer[70];
+	char input_buffer[65];
 } field_input_t;
 
 typedef struct field_checkbox {
 	__int8 checked;
-	void* data_ptr;
 } field_checkbox_t;
 
 typedef struct field_radio {
 	size_t radio_id;
 	__int8 checked;
-	void* data_ptr;
 } field_radio_t;
 
 typedef struct field_item {
@@ -95,6 +94,7 @@ typedef struct form {
 	char				name[50];
 	struct field_item*	head;
 	struct field_item*	selected;
+	struct field_item*	prev_selected;
 	state				form_state;
 } form_t;
 
@@ -185,6 +185,8 @@ int main() {
 
 	field_checkbox_t* checkbox2 = (field_checkbox_t*)calloc(1, sizeof(field_checkbox_t));
 	form_add_item(form, "Checkbox 2", CHECKBOX, checkbox2);
+
+	form_add_item(form, "----------------", SEPARATOR, NULL);
 
 	field_radio_t* radio1 = (field_radio_t*)calloc(1, sizeof(field_radio_t));
 	radio1->radio_id = 1;
@@ -540,12 +542,19 @@ form_t* form_create(char text[50]) {
 }
 
 void form_show(form_t* form, int key_code) {
+	COORD coord;
+	coord.X = 1;
+	size_t rows = 1;
+
 	if (form->form_state == REDRAW_ALL) {
 		system("cls");
-		printf("===%s=== code[%d]\n", form->name, key_code);
+		make_borders(form->name);
 		field_item_t* current = form->head;
 
 		while (current != NULL) {
+			coord.Y = rows++;
+			SetConsoleCursorPosition(hConsole, coord);
+
 			if (current == form->selected)
 				SetConsoleTextAttribute(hConsole, HIGHLIGHT_COLOR);
 
@@ -560,6 +569,9 @@ void form_show(form_t* form, int key_code) {
 			case RADIO:
 				printf("%s (%c)", current->text, current->data.radio->checked ? '*' : ' ');
 				break;
+			case SEPARATOR:
+				printf("%s", current->text);
+				break;
 			default:
 				break;
 			}
@@ -570,26 +582,70 @@ void form_show(form_t* form, int key_code) {
 			current = current->next;
 		}
 		form->form_state = CONTINUE;
+
+	} else if (form->form_state == REDRAW_SELECTED) {
+		field_item_t* current = form->head;
+
+		while (current != NULL) {
+			coord.Y = rows++;
+			SetConsoleCursorPosition(hConsole, coord);
+			if (current == form->selected || current == form->prev_selected ||
+				(form->selected->type == RADIO && 
+					current->type == RADIO && 
+					current->data.radio->radio_id == form->selected->data.radio->radio_id)) {
+				if (current == form->selected)
+					SetConsoleTextAttribute(hConsole, HIGHLIGHT_COLOR);
+
+				switch (current->type)
+				{
+				case INPUTFIELD:
+					printf("%s : %s", current->text, current->data.input->input_buffer);
+					size_t i;
+					SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+					for (i = 0; i < sizeof(current->data.input->input_buffer) - strlen(current->data.input->input_buffer); ++i) {
+						printf(" ");
+					}
+					break;
+				case CHECKBOX:
+					printf("%s [%c]", current->text, current->data.checkbox->checked ? '*' : ' ');
+					break;
+				case RADIO:
+					printf("%s (%c)", current->text, current->data.radio->checked ? '*' : ' ');
+					break;
+				case SEPARATOR:
+					printf("%s", current->text);
+					break;
+				default:
+					break;
+				}
+
+				if (current == form->selected)
+					SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+				printf("\n");
+			}
+			current = current->next;
+		}
+		form->form_state = CONTINUE;
 	}
 
-	COORD coord;
-	coord.X = 1;
 	coord.Y = field_get_id(form, form->selected);;
 
 	switch (form->selected->type){
 	case INPUTFIELD:
-		coord.X = strlen(form->selected->text) + 3 + strlen(form->selected->data.input->input_buffer);
+		coord.X = strlen(form->selected->text) + 4 + strlen(form->selected->data.input->input_buffer);
 		break;
 	case CHECKBOX:
-		coord.X = strlen(form->selected->text) + 2;
+		coord.X = strlen(form->selected->text) + 3;
 		break;
 	case RADIO:
-		coord.X = strlen(form->selected->text) + 2;
+		coord.X = strlen(form->selected->text) + 3;
 		break;
 	default:
 		break;
 	}
 	SetConsoleCursorPosition(hConsole, coord);
+
+
 }
 
 size_t field_get_id(form_t* form, field_item_t* field) {
@@ -610,36 +666,40 @@ state form_execute(void* data, void*) {
 	cci.bVisible = TRUE;
 	SetConsoleCursorInfo(hConsole, &cci);
 
+	field_item_t* current;
+
 	form_show(form, ch);
 
 	do {
+
 		ch = _getch();
 
-		if (ch == 0 || ch == 224)
+		if (ch == 0 || ch == 224) {
 			ch = 256 + _getch();
+		}
 
 		switch (ch) {
 		case KEY_BACKSPACE:
 			if (form->selected->type == INPUTFIELD) {
 				form->selected->data.input->input_buffer[strlen(form->selected->data.input->input_buffer) - 1] = '\0';
-				form->form_state = REDRAW_ALL;
+				form->form_state = REDRAW_SELECTED;
 			}
 			break;
 		case KEY_SPACE:
 			if (form->selected->type == INPUTFIELD) {
 				if (strlen(form->selected->data.input->input_buffer) < sizeof(form->selected->data.input->input_buffer) - 1)
 					form->selected->data.input->input_buffer[strlen(form->selected->data.input->input_buffer)] = ch;
-				form->form_state = REDRAW_ALL;
+				form->form_state = REDRAW_SELECTED;
 			}
 			if (form->selected->type == CHECKBOX) {
 				if (form->selected->data.checkbox->checked)
 					form->selected->data.checkbox->checked = 0;
 				else
 					form->selected->data.checkbox->checked = 1;
-				form->form_state = REDRAW_ALL;
+				form->form_state = REDRAW_SELECTED;
 			}
 			if (form->selected->type == RADIO) {
-				field_item_t* current = form->head;
+				current = form->head;
 				while (current) {
 					if (current->type == RADIO &&
 						current->data.radio->radio_id == form->selected->data.radio->radio_id &&
@@ -649,23 +709,34 @@ state form_execute(void* data, void*) {
 					current = current->next;
 				}
 				form->selected->data.radio->checked = 1;
-				form->form_state = REDRAW_ALL;
+				form->form_state = REDRAW_SELECTED;
 			}
 			break;
 		case ARROW_UP:
-			if (form->head != form->selected) {
-				field_item_t* current = form->head;
+			form->prev_selected = form->selected;
+			while (form->head != form->selected) {
+				current = form->head;
 				while (current->next != form->selected) {
 					current = current->next;
 				}
+				
 				form->selected = current;
-				form->form_state = REDRAW_ALL;
+				if (form->selected->type != SEPARATOR) {
+					form->form_state = REDRAW_SELECTED;
+					break;
+				}
 			}
 			break;
 		case ARROW_DOWN:
-			if (form->selected->next) {
-				form->selected = form->selected->next;
-				form->form_state = REDRAW_ALL;
+			current = form->selected;
+			while (current->next) {
+				current = current->next;
+				if (current->type != SEPARATOR) {
+					form->prev_selected = form->selected;
+					form->selected = current;
+					form->form_state = REDRAW_SELECTED;
+					break;
+				}
 			}
 			break;
 		default:
@@ -673,7 +744,7 @@ state form_execute(void* data, void*) {
 				if (form->selected->type == INPUTFIELD) {
 					if (strlen(form->selected->data.input->input_buffer) < sizeof(form->selected->data.input->input_buffer) - 1)
 						form->selected->data.input->input_buffer[strlen(form->selected->data.input->input_buffer)] = ch;
-					form->form_state = REDRAW_ALL;
+					form->form_state = REDRAW_SELECTED;
 				}
 			}
 			break;
@@ -697,14 +768,15 @@ void form_free(form_t* form) {
 }
 
 void make_borders(char* text) {
-	size_t i, j;
+	size_t i, j, tmp;
 
 	printf(RusW(L"╔"));
-	for (i = 0; i < (CONSOLE_WIDTH - 3) / 2 - strlen(text) / 2; ++i) {
+	tmp = CONSOLE_WIDTH / 2 - strlen(text) / 2;
+	for (i = 0; i < tmp - 3; ++i) {
 		printf(RusW(L"═"));
 	}
 	printf(Rus(text));
-	for (i = 0; i < (CONSOLE_WIDTH - 2) / 2 - strlen(text) / 2; ++i) {
+	for (i = tmp + strlen(text); i < CONSOLE_WIDTH; ++i) {
 		printf(RusW(L"═"));
 	}
 	printf(RusW(L"╗\n"));
@@ -768,14 +840,14 @@ menu_t* menu_create(char text[50]) {
 }
 
 void menu_show(menu_t* menu) {
+	COORD coord;
+	coord.X = 1;
+	size_t rows = 1;
+
 	if (menu->menu_state == REDRAW_ALL) {
 		system("cls");
 		make_borders(menu->name);
 		menu_item_t* current = menu->head;
-
-		COORD coord;
-		coord.X = 1;
-		size_t rows = 1;
 
 		while (current != NULL) {
 			coord.Y = rows++;
@@ -792,10 +864,6 @@ void menu_show(menu_t* menu) {
 	}
 	else if (menu->menu_state == REDRAW_SELECTED) {
 		menu_item_t* current = menu->head;
-
-		COORD coord;
-		coord.X = 1;
-		size_t rows = 1;
 
 		while (current != NULL) {
 			coord.Y = rows++;
@@ -1078,6 +1146,5 @@ __int64 pow(__int64 base, __int64 exp)
 
 __int8 is_valid_char(int ch)
 {
-	return ((ch >= 32 && ch <= 126) ||
-			(ch >= 128 && ch <= 254));
+	return ch >= 32 && ch <= 126 || ch >= 128 && ch <= 254;
 }
