@@ -8,7 +8,7 @@
 * amatu, 4/16/2016 1:28:56 PM
 */
 
-#define CONSOLE_WIDTH	80
+#define CONSOLE_WIDTH	120
 #define CONSOLE_HEIGTH	25
 
 #define HALT ""
@@ -192,9 +192,7 @@ int main() {
 	//Сохраняем текущие параметры консоли
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
-
-	set_console_size(CONSOLE_WIDTH, CONSOLE_HEIGTH);
-
+	
 	pc_t* db;
 
 	//Создаем меню
@@ -266,12 +264,8 @@ form_t* create_empty_pc_form(void* data, void* params){
 
 
 void set_console_size(size_t x, size_t y) {
-	char command[20] = { 0 };
-	strcat(command, "mode ");
-	strcat(command, int_to_str(x));
-	strcat(command, ", ");
-	strcat(command, int_to_str(y));
-	system(command);
+	SMALL_RECT windowSize = { 0 , 0 , x , y }; //change the values
+	SetConsoleWindowInfo(hConsole, TRUE, &windowSize);
 }
 
 //Функция создает и инициализирует таблицу и возвращает указатель на нее
