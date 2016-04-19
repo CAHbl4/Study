@@ -8,7 +8,6 @@
 * amatu, 4/16/2016 1:28:56 PM
 */
 
-
 #define CONSOLE_WIDTH	80
 #define CONSOLE_HEIGTH	25
 
@@ -135,13 +134,13 @@ typedef struct pc {
 } pc_t;
 
 
-table_t*	table_create(size_t width, size_t rows, char name[50]);
-void		table_add_column(table_t* table, char text[50], void* data_source, data_types data_type, size_t min_width, size_t max_width);
-void		table_print(table_t* table, size_t screen_width);
-size_t		table_column_width(table_column_t* col, size_t rows);
+table_t*table_create(size_t width, size_t rows, char name[50]);
+void	table_add_column(table_t* table, char text[50], void* data_source, data_types data_type, size_t min_width, size_t max_width);
+void	table_print(table_t* table, size_t screen_width);
+size_t	table_column_width(table_column_t* col, size_t rows);
 
-state exit_program(void* data, void* params);
-state exit_sub(void* data, void* params);
+state	exit_program(void* data, void* params);
+state	exit_sub(void* data, void* params);
 
 void	menu_add_item(menu_t* menu, char text[50], event_cb_t action, void* data, void* params);
 menu_t* menu_create(char text[50]);
@@ -151,7 +150,7 @@ void	menu_free(menu_t* menu);
 
 void	form_add_item(form_t* form, char text[50], field_types type, void* data);
 form_t* form_create(char text[50], event_cb_t action, void* data, void* params, char cb_text[50]);
-void form_show(form_t* form, int key_code);
+void	form_show(form_t* form, int key_code);
 state	form_execute(void* form, void* params);
 void	form_free(form_t* form);
 size_t	field_get_id(form_t* form, field_item_t* field);
@@ -170,17 +169,16 @@ char*	int_to_str(__int64 num);
 int		get_rand(int left, int right);
 __int64 _llabs(__int64 x);
 __int64 str_to_int(const char* str);
-__int8 is_digit(char ch);
+__int8	is_digit(char ch);
 __int64 pow(__int64 base, __int64 exp);
-int* parse_ints(int* nums, char* str, int* count);
-__int8 is_valid_char(int ch);
+int*	parse_ints(int* nums, char* str, int* count);
+__int8	is_valid_char(int ch);
 
-void set_console_size(size_t x, size_t y);
-void make_borders(char* text);
+void	set_console_size(size_t x, size_t y);
+void	make_borders(char* text);
 form_t* create_empty_pc_form(void* data, void* params);
-state add_record_form(void* data, void* params);
-state add_record_cb(void* data, void* params);
-
+state	add_record_form(void* data, void* params);
+state	add_record_cb(void* data, void* params);
 
 //Переменные для настройки консоли
 HANDLE	hConsole;
@@ -603,7 +601,9 @@ void form_show(form_t* form, int key_code) {
 			switch (current->type)
 			{
 			case INPUTFIELD:
-				printf("%s : %s", current->text, current->data.input->input_buffer);
+				printf("%s : ", current->text);
+				SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+				printf("%s", current->data.input->input_buffer);
 				break;
 			case CHECKBOX:
 				printf("%s [%c]", current->text, current->data.checkbox->checked?'*':' ');
@@ -640,9 +640,10 @@ void form_show(form_t* form, int key_code) {
 				switch (current->type)
 				{
 				case INPUTFIELD:
-					printf("%s : %s", current->text, current->data.input->input_buffer);
-					size_t i;
+					printf("%s : ", current->text);
 					SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+					printf("%s", current->data.input->input_buffer);
+					size_t i;
 					for (i = 0; i < sizeof(current->data.input->input_buffer) - strlen(current->data.input->input_buffer); ++i) {
 						printf(" ");
 					}
@@ -685,8 +686,6 @@ void form_show(form_t* form, int key_code) {
 		break;
 	}
 	SetConsoleCursorPosition(hConsole, coord);
-
-
 }
 
 size_t field_get_id(form_t* form, field_item_t* field) {
