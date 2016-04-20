@@ -8,12 +8,19 @@
 * amatu, 4/16/2016 1:28:56 PM
 */
 
+#define CONSOLE_WIDTH	120
+#define CONSOLE_HEIGTH	25
+
+#define ITEMS_DB_F		"items.db"
+#define	LIST_F			"list"
 
 #define HALT ""
 
 enum keys {
+	KEY_BACKSPACE = 8,
 	KEY_ENTER = 13,
 	KEY_ESC = 27,
+	KEY_SPACE = 32,
 	ARROW_UP = 256 + 72,
 	ARROW_DOWN = 256 + 80,
 	ARROW_LEFT = 256 + 75,
@@ -22,13 +29,22 @@ enum keys {
 
 enum state {
 	EXIT,
-	REDRAW,
+	REDRAW_ALL,
+	REDRAW_SELECTED,
 	CONTINUE
 };
 
-enum datatypes {
-	INTEGER,
-	STRING
+enum data_types {
+	_INTEGER,
+	_FLOAT,
+	_STRING
+};
+
+enum field_types {
+	INPUTFIELD,
+	CHECKBOX,
+	RADIO,
+	SEPARATOR
 };
 
 typedef state(*event_cb_t)(void *data, void* params);
@@ -40,45 +56,23 @@ struct event_cb {
 };
 
 typedef struct menu_item {
-	char				text[50];
+	char				text[80];
 	struct event_cb*	action;
 	struct menu_item*	next;
 } menu_item_t;
 
 typedef struct menu {
-	char				name[50];
+	char				name[80];
 	struct menu_item*	head;
 	struct menu_item*	selected;
+	struct menu_item*	prev_selected;
 	state				menu_state;
 } menu_t;
 
-typedef struct phonebook_item {
-	size_t	id;
-	char*	first_name;
-	char*	last_name;
-	char*	patronymic;
-	char*	street;
-	char*	bld;
-	char*	ap;
-	char*	phone;
-} phonebook_item_t;
-
-typedef struct student {
-	size_t	id;
-	char*	last_name;
-	char*	group;
-	int		marks[5];
-} student_t;
-
-typedef struct journal {
-	student_t**	records;
-	size_t count;
-} journal_t;
-
 typedef struct table_column {
-	char		text[50];
+	char		text[80];
 	void*		data_source;
-	datatypes	data_type;
+	data_types	data_type;
 	size_t		min_width;
 	size_t		max_width;
 	size_t		print_width;
@@ -92,32 +86,37 @@ typedef struct table {
 	size_t			width;
 } table_t;
 
+enum CASE {
+	AT,
+	ATX
+};
 
-state add_record(void* data, void* param);
-state add_test_records(void* data, void* param);
-state print_records(void* data, void* param);
-state print_bests(void* data, void* param);
-state print_bads(void* data, void* param);
+enum VIDEO {
+	ONBOARD,
+	AGP,
+	PCI_E
+};
+
+typedef struct pc {
+	CASE pc_case : 1;
+	VIDEO pc_video : 2;
+} pc_t;
 
 
-char* marks_to_str(int marks[5]);
+table_t*table_create(size_t width, size_t rows, char name[50]);
+void	table_add_column(table_t* table, char text[50], void* data_source, data_types data_type, size_t min_width, size_t max_width);
+void	table_print(table_t* table, size_t screen_width);
+size_t	table_column_width(table_column_t* col, size_t rows);
 
-char* get_random_last_name();
-char* get_random_group();
-
-table_t*	table_create(size_t width, size_t rows, char name[50]);
-void		table_add_column(table_t* table, char text[50], void* data_source, datatypes data_type, size_t min_width, size_t max_width);
-void		table_print(table_t* table, size_t screen_width);
-size_t		table_column_width(table_column_t* col, size_t rows);
-
-state exit_program(void* data, void* params);
-state exit_sub(void* data, void* params);
+state	exit_program(void* data, void* params);
+state	exit_sub(void* data, void* params);
 
 void	menu_add_item(menu_t* menu, char text[50], event_cb_t action, void* data, void* params);
 menu_t* menu_create(char text[50]);
 void	menu_show(menu_t* menu);
 state	menu_execute(void* menu, void* params);
 void	menu_free(menu_t* menu);
+
 int		get_code(void);
 
 char*	Rus(const char* text);
@@ -132,260 +131,266 @@ char*	int_to_str(__int64 num);
 int		get_rand(int left, int right);
 __int64 _llabs(__int64 x);
 __int64 str_to_int(const char* str);
-__int8 is_digit(char ch);
+__int8	is_digit(char ch);
 __int64 pow(__int64 base, __int64 exp);
-int* parse_ints(int* nums, char* str, int* count);
+int*	parse_ints(int* nums, char* str, int* count);
+__int8	is_valid_char(int ch);
+
+void	set_console_size(size_t x, size_t y);
+void	make_borders(char* text);
+
+//Переменные для настройки консоли
+HANDLE	hConsole;
+CONSOLE_SCREEN_BUFFER_INFO csbi;
+CONSOLE_CURSOR_INFO cci;
+
+#define HIGHLIGHT_COLOR		BACKGROUND_GREEN	| BACKGROUND_BLUE	| 0
+#define DEFAULT_COLOR		BACKGROUND_BLUE | FOREGROUND_BLUE	| FOREGROUND_GREEN	| FOREGROUND_RED	| FOREGROUND_INTENSITY
+
+
+
+
+typedef struct item {
+	size_t id;
+	char name[30];
+	char model[10];
+	float price;
+} item_t;
+
+typedef struct record {
+	size_t id;
+	char department[20];
+	item_t* item;
+	int count;
+	char mark_del;
+} record_t;
+
+typedef struct items_db {
+	item_t* items;
+	size_t count;
+} items_db_t;
+
+typedef struct list {
+	record_t* records;
+	size_t count;
+} list_t;
+
+state add_record(void* data, void* params);
+state add_test_records(void* data, void* params);
+state add_test_items(void* data, void* params);
+
+item_t* get_random_item(items_db_t* items_db);
+
+state print_records(void* data, void* params);
+state read_files(void* data, void* params);
+state save_files(void* data, void* params);
+
 
 int main() {
-	journal_t journal;
-	journal.records = NULL;
-	journal.count = 0;
+	//Сохраняем текущие параметры консоли
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+
+	list_t list = { NULL, 0 };
+	items_db items_db = { NULL, 0 };
 
 	//Создаем меню
-	menu_t* main_menu = menu_create(Rus("Главное меню"));
-
-	if (!main_menu) {
-		return 1;
-	}
+	menu_t* main_menu = menu_create("Главное меню");
 
 	//Добавляем пункты в меню
-	menu_add_item(main_menu, Rus("Добавить запись"), &add_record, &journal, NULL);
-	menu_add_item(main_menu, Rus("Добавить тестовые записи"), &add_test_records, &journal, NULL);
-	menu_add_item(main_menu, Rus("Вывести все записи"), &print_records, &journal, "Список студентов");
-	menu_add_item(main_menu, Rus("Вывести список отличников"), &print_bests, &journal, "Список отличников");
-	menu_add_item(main_menu, Rus("Вывести список двоечников"), &print_bads, &journal, "Список двоечников");
+	menu_add_item(main_menu, Rus("Добавить запись"), &add_record, &list, NULL);
+	menu_add_item(main_menu, Rus("Добавить тестовые записи в базу оборудования"), &add_test_items, &items_db, NULL);
+	menu_add_item(main_menu, Rus("Добавить тестовые записи в список оборудования в цехах"), &add_test_records, &list, &items_db);
+	menu_add_item(main_menu, Rus("Вывести список оборудования"), &print_records, &list, "Cписок оборудования");
+	menu_add_item(main_menu, Rus("Сохранить БД"), &save_files, &list, &items_db);
+	menu_add_item(main_menu, Rus("Прочитать БД"), &read_files, &list, &items_db);
+
 
 	menu_add_item(main_menu, "Exit", &exit_program, NULL, NULL);
 
 	//Выполняем меню
 	menu_execute(main_menu, NULL);
 
+
 	menu_free(main_menu);
 
 	return 0;
 }
 
-state print_bests(void* data, void* param) {
-	journal_t* journal = (journal_t*)data;
-	char* name = (char*)param;
-	journal_t bests;
-	bests.records = NULL;
-	bests.count = NULL;
+state read_files(void* data, void* params)
+{
+	list_t* list = (list_t*)data;
+	items_db_t* items_db = (items_db_t*)params;
 
-	size_t i, j, fives_count;
-	for(i = 0; i < journal->count; ++i){
-		fives_count = 0;
-		for(j = 0; j < 5; ++j) {
-			if (journal->records[i]->marks[j] < 4) {
-				break;
-			}
-			if (journal->records[i]->marks[j] == 5) {
-				++fives_count;
-			}
-		}
-		if (j == 5) {
-			if (100/5 * fives_count > 75) {
-				bests.records = (student_t**)realloc(bests.records, sizeof(student_t*) * (bests.count + 1));
-				bests.records[bests.count] = journal->records[i];
-				++bests.count;
-			}
-		}
+	FILE * list_f = fopen(LIST_F, "r");
+	FILE * items_db_f = fopen(ITEMS_DB_F, "r");
+
+
+	list->records = (record_t*)realloc(list->records, sizeof(record_t) * (list->count + 1));
+	items_db->items = (item_t*)realloc(list->records, sizeof(item_t) * (items_db->count + 1));
+
+	while (fread(&list->records[list->count], sizeof(record_t), 1, list_f))
+	{
+		++list->count;
+		list->records = (record_t*)realloc(list->records, sizeof(record_t) * (list->count + 1));
 	}
-	print_records(&bests, name);
-	free(bests.records);
-	return REDRAW;
+
+	while (fread(items_db->items, sizeof(item_t), 1, items_db_f))
+	{
+		++items_db->count;
+		items_db->items = (item_t*)realloc(list->records, sizeof(item_t) * (items_db->count + 1));
+	}
+
+	list->records = (record_t*)realloc(list->records, sizeof(record_t) * (list->count));
+	items_db->items = (item_t*)realloc(list->records, sizeof(item_t) * (items_db->count));
+
+	fclose(list_f);
+	fclose(items_db_f);
+	return CONTINUE;
 }
 
-state print_bads(void* data, void* param) {
-	journal_t* journal = (journal_t*)data;
-	char* name = (char*)param;
-	journal_t bads;
-	bads.records = NULL;
-	bads.count = NULL;
+state save_files(void* data, void* params)
+{
+	list_t* list = (list_t*)data;
+	items_db_t* items_db = (items_db_t*)params;
 
-	size_t i, j, bads_count;
-	for (i = 0; i < journal->count; ++i) {
-		bads_count = 0;
-		for (j = 0; j < 5; ++j) {
-			if (journal->records[i]->marks[j] < 4) {
-				++bads_count;
-			}
-		}
-		if (100 / 5 * bads_count > 50) {
-			bads.records = (student_t**)realloc(bads.records, sizeof(student_t*) * (bads.count + 1));
-			bads.records[bads.count] = journal->records[i];
-			++bads.count;
-		}
-	}
-	print_records(&bads, name);
-	free(bads.records);
-	return REDRAW;
+	FILE * list_f = fopen(LIST_F, "w");
+	FILE * items_db_f = fopen(ITEMS_DB_F, "w");
+
+	fwrite(list, sizeof(record_t), list->count, list_f);
+	fwrite(items_db, sizeof(item_t), items_db->count, items_db_f);
+	
+	fclose(list_f);
+	fclose(items_db_f);
+
+	return CONTINUE;
 }
 
 //Функция формирует данные для таблицы и выводит данные на экран
-state print_records(void* data, void* param)
+state print_records(void* data, void* params)
 {
 	//Данные для вывода
-	journal_t* journal = (journal_t*)data;
-	char* name = (char*)param;
+	list_t* list = (list_t*)data;
+	char* name = (char*)params;
 
 	size_t i;
-	table_t* table = table_create(0, journal->count, name);
+	table_t* table = table_create(0, list->count, name);
 
 	//Выделяем память под колонки
-	size_t* n = (size_t*)calloc(journal->count, sizeof(size_t));
-	char** last_names = (char**)calloc(journal->count, sizeof(char**));
-	char** groups = (char**)calloc(journal->count, sizeof(char**));
-	char** marks = (char**)calloc(journal->count, sizeof(char**));
-	
+	size_t* n = (size_t*)calloc(list->count, sizeof(size_t));
+	char** department = (char**)calloc(list->count, sizeof(char**));
+	char** item_name = (char**)calloc(list->count, sizeof(char**));
+	char** item_model = (char**)calloc(list->count, sizeof(char**));
+	float*	item_price = (float*)calloc(list->count, sizeof(float));
+	int*	count = (int*)calloc(list->count, sizeof(int));
+
 
 	//Добавляем колонки в таблицу
-	table_add_column(table, Rus("№"), n, INTEGER, 0, 5);
-	table_add_column(table, Rus("ФАМИЛИЯ"), last_names, STRING, 5, 0);
-	table_add_column(table, Rus("ГРУППА"), groups, STRING, 5, 0);
-	table_add_column(table, Rus("ОЦЕНКИ"), marks, STRING, 5, 0);
+	table_add_column(table, Rus("№"), n, _INTEGER, 0, 5);
+	table_add_column(table, Rus("ЦЕХ"), department, _STRING, 5, 0);
+	table_add_column(table, Rus("НАИМЕНОВАНИЕ"), item_name, _STRING, 5, 0);
+	table_add_column(table, Rus("МОДЕЛЬ"), item_model, _STRING, 5, 0);
+	table_add_column(table, Rus("ЦЕНА"), item_price, _FLOAT, 5, 0);
+	table_add_column(table, Rus("КОЛИЧЕСТВО"), count, _INTEGER, 5, 0);
 
 	//Заполняем колонки данными
-	for (i = 0; i < journal->count; ++i)
+	for (i = 0; i < list->count; ++i)
 	{
-		*(n + i) = journal->records[i]->id;
-		*(last_names + i) = journal->records[i]->last_name;
-		*(groups + i) = journal->records[i]->group;
-		*(marks + i) = marks_to_str(journal->records[i]->marks);
-	}
-
-	//Получаем ширину консоли
-	size_t sreen_width;
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	int ret;
-	ret = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-	if (ret)
-	{
-		sreen_width = csbi.dwSize.X - 4;
-	}
-	else {
-		sreen_width = 110;
+		*(n + i) = list->records[i].id;
+		*(department + i) = list->records[i].department;
+		*(item_name + i) = list->records[i].item->name;
+		*(item_model + i) = list->records[i].item->model;
+		*(item_price + i) = list->records[i].item->price;
+		*(count + i) = list->records[i].count;
+		
 	}
 
 	//Выводим таблицу
-	table_print(table, sreen_width);
+	table_print(table, CONSOLE_WIDTH - 5);
 
 	//Освобождаем память
 	free(n);
-	free(last_names);
-	free(groups);
-	free(marks);
+	free(department);
+	free(item_name);
+	free(item_model);
+	free(item_price);
 	free(table);
 
 	system("pause");
-	return REDRAW;
+	return REDRAW_ALL;
 }
 
-char* marks_to_str(int marks[5]) {
-	char* tmp;
-	size_t i, length = 1;;
-	char* str = (char*)calloc(length, sizeof(char));
-
-	for (i = 0; i < 5; ++i) {
-		tmp = int_to_str(marks[i]);
-		length += strlen(tmp);
-		str = (char*)realloc(str, sizeof(char) * length);
-		strcat(str, tmp);
-		if (i != 4) {
-			++length;
-			str = (char*)realloc(str, sizeof(char) * length);
-			strcat(str, " ");
-		}
-		free(tmp);
-	}
-	return str;
-}
-
-//Функция запрашивает данные с клавиатуры и сохранет их в массив
-state add_record(void* data, void* param) {
+state add_test_items(void* data, void* param)
+{
 	system("cls");
-	journal_t* journal = (journal_t*)data;
-
-	journal->records = (student_t**)realloc(journal->records, sizeof(student_t*) * (journal->count + 1));
-	journal->records[journal->count] = (student_t*)calloc(1, sizeof(student_t));
-	
-	journal->records[journal->count]->id = journal->count ? journal->records[journal->count - 1]->id + 1 : 1;
-
-	printf(Rus("Введите фамилию: "));
-	journal->records[journal->count]->last_name = read_string(stdin);
-
-	printf(Rus("Введите группу: "));
-	journal->records[journal->count]->group = read_string(stdin);
-
-	printf(Rus("Введите 5 оценок от 1 до 5, сохранены будут только 5 оценок: "));
-	size_t i, j = 0;
-	int* tmp_int = NULL, count = 0;
-	char* tmp_str;
-	do {
-		tmp_str = read_string(stdin);
-		tmp_int = parse_ints(tmp_int, tmp_str, &count);
-		for (i = 0; i < count; ++i) {
-			if (tmp_int[i] >= 1 && tmp_int[i] <= 5) {
-				journal->records[journal->count]->marks[j++] = tmp_int[i];
-			}
-			if (j == 5) {
-				break;
-			}
-		}
-		free(tmp_str);
-		free(tmp_int);
-		tmp_int = NULL;
-		count = 0;
-
-	} while (j < 5);
-
-	++journal->count;
-	return REDRAW;
-}
-
-//Функция заполняет массив тестовыми данными
-state add_test_records(void* data, void* param) {
-	system("cls");
-	journal_t* journal = (journal_t*)data;
+	items_db_t* items_db = (items_db_t*)data;
 	size_t add_count, i, j;
 
-	printf(Rus("Сколько записей добавить: "));
-	add_count = (size_t)read_int(stdin);
+	static const char* names[] = { "Перфоратор", "Дрель", "Лобзик", "Шуроповерт", "Циркулярная пила" };
+	static const char* model[] = { "ПФ-", "ДР-", "ЛБ-", "ШВ-", "ЦП-" };
+	size_t count = 5;
 
-	journal->records = (student_t**)realloc(journal->records, sizeof(student_t*) * (journal->count + add_count));
+	printf(Rus("Сколько записей добавить: "));
+	add_count = read_int(stdin);
+
+	items_db->items = (item_t*)realloc(items_db->items, sizeof(item_t) * (items_db->count + add_count));
 
 	for (i = 0; i < add_count; ++i) {			//Заполняем случайными значениями элемент массива
-		journal->records[journal->count] = (student_t*)calloc(1, sizeof(student_t));
-		journal->records[journal->count]->id = journal->count ? journal->records[journal->count - 1]->id + 1 : 1;
-		journal->records[journal->count]->last_name = get_random_last_name();
-		journal->records[journal->count]->group = get_random_group();
-		for (j = 0; j < 5; ++j) {
-			journal->records[journal->count]->marks[j] = get_rand(2, 5);
-		}
-		++journal->count;
+		j = rand() % count;
+		items_db->items[items_db->count].id = items_db->count ? items_db->items[items_db->count - 1].id + 1 : 1;
+		strcpy(items_db->items[items_db->count].name, Rus(names[j]));
+		strcpy(items_db->items[items_db->count].model, Rus(model[j]));
+		strcat(items_db->items[items_db->count].model, int_to_str(get_rand(1, 900)));
+		items_db->items[items_db->count].price = (float)get_rand(0, 100) + (float)get_rand(0, 99) / 100;
+		++items_db->count;
 	}
 
-	return REDRAW;
+	return REDRAW_ALL;
+}
+
+state add_test_records(void* data, void* param) {
+	system("cls");
+	list_t* list = (list_t*)data;
+	items_db_t* items_db = (items_db_t*)param;
+	size_t add_count, i, j;
+	static const char* names[] = { "Слесарный", "Инструментальный", "Первый", "Второй", "Третий" };
+	size_t count = 5;
+
+	printf(Rus("Сколько записей добавить: "));
+	add_count = read_int(stdin);
+
+	list->records = (record_t*)realloc(list->records, sizeof(record_t) * (list->count + add_count));
+
+	for (i = 0; i < add_count; ++i) {			//Заполняем случайными значениями элемент массива
+		j = rand() % count;
+		list->records[list->count].id = list->count ? list->records[list->count - 1].id + 1 : 1;
+		strcpy(list->records[list->count].department, Rus(names[j]));
+		list->records[list->count].item = get_random_item(items_db);
+		list->records[list->count].count = get_rand(0, 10);
+		++list->count;
+	}
+
+	return REDRAW_ALL;
 }
 
 
-//Функция возвращает случайную фамилию из списка
-char* get_random_last_name() {
-	static const char* names[] = { "Иванов", "Пржевальский", "Пушкин", "Лермонтов", "Сидоров" };
-	size_t count = 5;
-	size_t i = rand() % count;
-	char* result = (char*)malloc(sizeof(char) * strlen(names[i]));
-	strcpy(result, Rus(names[i]));
-	return result;
+item_t* get_random_item(items_db_t* items_db)
+{
+	return &items_db->items[rand() % items_db->count];
 }
 
-char* get_random_group() {
-	static const char* names[] = { "П11015", "П21014", "Д23011", "В31011", "С32016" };
-	size_t count = 5;
-	size_t i = rand() % count;
-	char* result = (char*)malloc(sizeof(char) * strlen(names[i]));
-	strcpy(result, Rus(names[i]));
-	return result;
+state add_record(void* data, void* params)
+{
+	return CONTINUE;
+}
+
+void set_console_size(size_t x, size_t y) {
+	char command[20] = { 0 };
+	strcat(command, "mode ");
+	strcat(command, int_to_str(x));
+	strcat(command, ", ");
+	strcat(command, int_to_str(y));
+	system(command);
 }
 
 //Функция создает и инициализирует таблицу и возвращает указатель на нее
@@ -404,9 +409,8 @@ table_t* table_create(size_t width, size_t rows, char name[50]) {
 }
 
 
-
 //Функция добавляет колонку в таблицу
-void table_add_column(table_t* table, char text[50], void* data_source, datatypes data_type, size_t min_width, size_t max_width) {
+void table_add_column(table_t* table, char text[50], void* data_source, data_types data_type, size_t min_width, size_t max_width) {
 	table->columns = (table_column_t*)realloc(table->columns, sizeof(table_column_t) * (table->cols + 1));
 	strcpy((table->columns + table->cols)->text, text);
 	(table->columns + table->cols)->data_source = data_source;
@@ -422,7 +426,7 @@ void table_add_column(table_t* table, char text[50], void* data_source, datatype
 void table_print(table_t* table, size_t screen_width) {
 	system("cls");
 	size_t table_width = 1;
-	size_t width, i, j;
+	size_t width, i, j, tmp;
 
 	//Высчитываем итоговую ширину таблицы
 	for (i = 0; i < table->cols; ++i) {
@@ -441,7 +445,7 @@ void table_print(table_t* table, size_t screen_width) {
 		//Пока итоговая ширина меньше фиксированной наращиваем размер колонок
 		while (table_width < table->width) {
 			for (i = 0; i < table->cols; ++i) {
-				if ((table->columns + i)->data_type == STRING) {
+				if ((table->columns + i)->data_type == _STRING) {
 					if (!(table->columns + i)->max_width ||
 						(table->columns + i)->print_width < (table->columns + i)->max_width) {
 						++(table->columns + i)->print_width;
@@ -458,7 +462,7 @@ void table_print(table_t* table, size_t screen_width) {
 		while (table_width > table->width) {
 			resize = 0;
 			for (i = 0; i < table->cols; ++i) {
-				if ((table->columns + i)->data_type == STRING) {
+				if ((table->columns + i)->data_type == _STRING) {
 					if ((table->columns + i)->print_width >(table->columns + i)->min_width) {
 						--(table->columns + i)->print_width;
 						--table_width;
@@ -496,11 +500,12 @@ void table_print(table_t* table, size_t screen_width) {
 
 	//Заголовок таблицы "║     Заголовок      ║"
 	printf(RusW(L"║"));
-	for(i = 0; i < (table_width - 2) / 2 - strlen(table->name)/2;++i) {
+	tmp = (table_width - 2) / 2 - strlen(table->name) / 2;
+	for (i = 0; i < tmp - 2; ++i) {
 		printf(" ");
 	}
 	printf(Rus(table->name));
-	for(i = 0; i < (table_width - 2) / 2 - strlen(table->name) / 2; ++i) {
+	for (i = tmp + strlen(table->name); i < table_width; ++i) {
 		printf(" ");
 	}
 	printf(RusW(L"║\n"));
@@ -550,19 +555,27 @@ void table_print(table_t* table, size_t screen_width) {
 	for (j = 0; j < table->rows; ++j) {
 		printf(RusW(L"║"));
 		for (i = 0; i < table->cols; ++i) {
-			if ((table->columns + i)->data_type == INTEGER) {
+			if ((table->columns + i)->data_type == _INTEGER) {
 				printf("%*d",
 					(table->columns + i)->print_width,
 					*((int*)(table->columns + i)->data_source + j)
-				);
+					);
 			}
 
-			if ((table->columns + i)->data_type == STRING) {
+			if ((table->columns + i)->data_type == _FLOAT) {
+				printf("%*.2f",
+					(table->columns + i)->print_width,
+					*((float*)(table->columns + i)->data_source + j)
+					);
+			}
+
+
+			if ((table->columns + i)->data_type == _STRING) {
 				printf("%-*.*s",
 					(table->columns + i)->print_width,
 					(table->columns + i)->print_width,
 					*((char**)(table->columns + i)->data_source + j)
-				);
+					);
 			}
 
 			if (i + 1 == table->cols) {
@@ -593,7 +606,7 @@ size_t table_column_width(table_column_t* col, size_t rows) {
 	size_t i, max_width = 0, width;
 	switch (col->data_type)
 	{
-	case INTEGER:
+	case _INTEGER:
 		for (i = 0; i < rows; ++i) {
 			width = num_char_count(*((int*)col->data_source + i));
 			if (width > max_width) {
@@ -601,7 +614,7 @@ size_t table_column_width(table_column_t* col, size_t rows) {
 			}
 		}
 		break;
-	case STRING:
+	case _STRING:
 		for (i = 0; i < rows; ++i) {
 			width = strlen(*((char**)col->data_source + i));
 			if (width > max_width) {
@@ -627,6 +640,36 @@ state exit_sub(void*, void*)
 {
 	return EXIT;
 }
+
+void make_borders(char* text) {
+	size_t i, j, tmp;
+
+	printf(RusW(L"╔"));
+	tmp = CONSOLE_WIDTH / 2 - strlen(text) / 2;
+	for (i = 0; i < tmp - 3; ++i) {
+		printf(RusW(L"═"));
+	}
+	printf(Rus(text));
+	for (i = tmp + strlen(text); i < CONSOLE_WIDTH; ++i) {
+		printf(RusW(L"═"));
+	}
+	printf(RusW(L"╗\n"));
+
+	for (i = 0; i < CONSOLE_HEIGTH - 3; ++i) {
+		printf(RusW(L"║"));
+		for (j = 0; j < CONSOLE_WIDTH - 3; ++j) {
+			printf(" ");
+		}
+		printf(RusW(L"║\n"));
+	}
+
+	printf(RusW(L"╚"));
+	for (j = 0; j < CONSOLE_WIDTH - 3; ++j) {
+		printf(RusW(L"═"));
+	}
+	printf(RusW(L"╝\n"));
+}
+
 
 void menu_add_item(menu_t* menu, char text[50], event_cb_t action, void* data, void* params) {
 	menu_item_t* current = menu->head;
@@ -665,26 +708,49 @@ menu_t* menu_create(char text[50]) {
 	strcpy_s(new_menu->name, text);
 	new_menu->head = NULL;
 	new_menu->selected = NULL;
-	new_menu->menu_state = REDRAW;
+	new_menu->prev_selected = NULL;
+	new_menu->menu_state = REDRAW_ALL;
 	return new_menu;
 }
 
 void menu_show(menu_t* menu) {
-	if (menu->menu_state == REDRAW) {
+	COORD coord;
+	coord.X = 1;
+	size_t rows = 1;
+
+	if (menu->menu_state == REDRAW_ALL) {
 		system("cls");
-		printf("===%s===\n", menu->name);
+		make_borders(menu->name);
 		menu_item_t* current = menu->head;
 
 		while (current != NULL) {
+			coord.Y = rows++;
+			SetConsoleCursorPosition(hConsole, coord);
 			if (current == menu->selected)
-				printf("[");
-			else
-				printf(" ");
+				SetConsoleTextAttribute(hConsole, HIGHLIGHT_COLOR);
+
 			printf("%s", current->text);
 			if (current == menu->selected)
-				printf("]\n");
-			else
-				printf("\n");
+				SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+			current = current->next;
+		}
+		menu->menu_state = CONTINUE;
+	}
+	else if (menu->menu_state == REDRAW_SELECTED) {
+		menu_item_t* current = menu->head;
+
+		while (current != NULL) {
+			coord.Y = rows++;
+			SetConsoleCursorPosition(hConsole, coord);
+			if (current == menu->selected || current == menu->prev_selected) {
+				if (current == menu->selected)
+					SetConsoleTextAttribute(hConsole, HIGHLIGHT_COLOR);
+
+				printf("%s", current->text);
+				if (current == menu->selected)
+					SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+			}
+
 			current = current->next;
 		}
 		menu->menu_state = CONTINUE;
@@ -693,6 +759,11 @@ void menu_show(menu_t* menu) {
 
 state menu_execute(void* data, void*) {
 	menu_t* menu = (menu_t*)data;
+
+	cci.dwSize = 1;
+	cci.bVisible = FALSE;
+	SetConsoleCursorInfo(hConsole, &cci);
+
 	menu_show(menu);
 
 	do {
@@ -708,20 +779,22 @@ state menu_execute(void* data, void*) {
 				while (current->next != menu->selected) {
 					current = current->next;
 				}
+				menu->prev_selected = menu->selected;
 				menu->selected = current;
-				menu->menu_state = REDRAW;
+				menu->menu_state = REDRAW_SELECTED;
 			}
 			break;
 		case ARROW_DOWN:
 			if (menu->selected->next) {
+				menu->prev_selected = menu->selected;
 				menu->selected = menu->selected->next;
-				menu->menu_state = REDRAW;
+				menu->menu_state = REDRAW_SELECTED;
 			}
 			break;
 		}
 		menu_show(menu);
 	} while (menu->menu_state);
-	return REDRAW;
+	return REDRAW_ALL;
 }
 
 void menu_free(menu_t* menu) {
@@ -943,4 +1016,9 @@ __int64 pow(__int64 base, __int64 exp)
 	}
 
 	return result;
+}
+
+__int8 is_valid_char(int ch)
+{
+	return ch >= 32 && ch <= 126 || ch >= 128 && ch <= 254;
 }
