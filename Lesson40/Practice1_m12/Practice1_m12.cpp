@@ -86,23 +86,6 @@ typedef struct table {
 	size_t			width;
 } table_t;
 
-enum CASE {
-	AT,
-	ATX
-};
-
-enum VIDEO {
-	ONBOARD,
-	AGP,
-	PCI_E
-};
-
-typedef struct pc {
-	CASE pc_case : 1;
-	VIDEO pc_video : 2;
-} pc_t;
-
-
 table_t*table_create(size_t width, size_t rows, char name[50]);
 void	table_add_column(table_t* table, char text[50], void* data_source, data_types data_type, size_t min_width, size_t max_width);
 void	table_print(table_t* table, size_t screen_width);
@@ -148,8 +131,6 @@ CONSOLE_CURSOR_INFO cci;
 #define DEFAULT_COLOR		BACKGROUND_BLUE | FOREGROUND_BLUE	| FOREGROUND_GREEN	| FOREGROUND_RED	| FOREGROUND_INTENSITY
 
 
-
-
 typedef struct item {
 	size_t id;
 	char name[30];
@@ -160,7 +141,7 @@ typedef struct item {
 typedef struct record {
 	size_t id;
 	char department[20];
-	item_t* item;
+	size_t item_id;
 	int count;
 	char mark_del;
 } record_t;
@@ -179,20 +160,21 @@ state add_record(void* data, void* params);
 state add_test_records(void* data, void* params);
 state add_test_items(void* data, void* params);
 
-item_t* get_random_item(items_db_t* items_db);
+size_t get_random_item(items_db_t* items_db);
 
 state print_records(void* data, void* params);
 state read_files(void* data, void* params);
 state save_files(void* data, void* params);
 
+item_t* get_item_by_id(size_t id, items_db_t* items_db);
+
+list_t list = { NULL, 0 };
+items_db_t items_db = { NULL, 0 };
 
 int main() {
 	//Сохраняем текущие параметры консоли
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
-
-	list_t list = { NULL, 0 };
-	items_db items_db = { NULL, 0 };
 
 	//Создаем меню
 	menu_t* main_menu = menu_create("Главное меню");
@@ -202,8 +184,8 @@ int main() {
 	menu_add_item(main_menu, Rus("Добавить тестовые записи в базу оборудования"), &add_test_items, &items_db, NULL);
 	menu_add_item(main_menu, Rus("Добавить тестовые записи в список оборудования в цехах"), &add_test_records, &list, &items_db);
 	menu_add_item(main_menu, Rus("Вывести список оборудования"), &print_records, &list, "Cписок оборудования");
-	menu_add_item(main_menu, Rus("Сохранить БД"), &save_files, &list, &items_db);
-	menu_add_item(main_menu, Rus("Прочитать БД"), &read_files, &list, &items_db);
+	menu_add_item(main_menu, Rus("Сохранить БД"), &save_files, NULL, NULL);
+	menu_add_item(main_menu, Rus("Прочитать БД"), &read_files, NULL, NULL);
 
 
 	menu_add_item(main_menu, "Exit", &exit_program, NULL, NULL);
@@ -217,48 +199,59 @@ int main() {
 	return 0;
 }
 
-state read_files(void* data, void* params)
+item_t* get_item_by_id(size_t id, items_db_t* items_db)
 {
-	list_t* list = (list_t*)data;
-	items_db_t* items_db = (items_db_t*)params;
+	size_t i;
+	for(i = 0; i < items_db->count; ++i)
+	{
+		if (items_db->items[i].id == id)
+		{
+			return &items_db->items[i];
+		}
+	}
+	return NULL;
+}
+
+state read_files(void*, void*)
+{
+	list.count = 0;
+	items_db.count = 0;
 
 	FILE * list_f = fopen(LIST_F, "r");
 	FILE * items_db_f = fopen(ITEMS_DB_F, "r");
 
 
-	list->records = (record_t*)realloc(list->records, sizeof(record_t) * (list->count + 1));
-	items_db->items = (item_t*)realloc(list->records, sizeof(item_t) * (items_db->count + 1));
+	items_db.items = (item_t*)realloc(items_db.items, sizeof(item_t) * (items_db.count + 1));
+	list.records = (record_t*)realloc(list.records, sizeof(record_t) * (list.count + 1));
 
-	while (fread(&list->records[list->count], sizeof(record_t), 1, list_f))
+	while (fread(&items_db.items[items_db.count], sizeof(item_t), 1, items_db_f))
 	{
-		++list->count;
-		list->records = (record_t*)realloc(list->records, sizeof(record_t) * (list->count + 1));
+		++items_db.count;
+		items_db.items = (item_t*)realloc(items_db.items, sizeof(item_t) * (items_db.count + 1));
 	}
 
-	while (fread(items_db->items, sizeof(item_t), 1, items_db_f))
+	while (fread(&list.records[list.count], sizeof(record_t), 1, list_f))
 	{
-		++items_db->count;
-		items_db->items = (item_t*)realloc(list->records, sizeof(item_t) * (items_db->count + 1));
+		++list.count;
+		list.records = (record_t*)realloc(list.records, sizeof(record_t) * (list.count + 1));
 	}
 
-	list->records = (record_t*)realloc(list->records, sizeof(record_t) * (list->count));
-	items_db->items = (item_t*)realloc(list->records, sizeof(item_t) * (items_db->count));
+	list.records = (record_t*)realloc(list.records, sizeof(record_t) * list.count);
+	items_db.items = (item_t*)realloc(items_db.items, sizeof(item_t) * items_db.count);
 
 	fclose(list_f);
 	fclose(items_db_f);
 	return CONTINUE;
 }
 
-state save_files(void* data, void* params)
+state save_files(void*, void*)
 {
-	list_t* list = (list_t*)data;
-	items_db_t* items_db = (items_db_t*)params;
 
 	FILE * list_f = fopen(LIST_F, "w");
 	FILE * items_db_f = fopen(ITEMS_DB_F, "w");
 
-	fwrite(list, sizeof(record_t), list->count, list_f);
-	fwrite(items_db, sizeof(item_t), items_db->count, items_db_f);
+	fwrite(list.records, sizeof(record_t), list.count, list_f);
+	fwrite(items_db.items, sizeof(item_t), items_db.count, items_db_f);
 	
 	fclose(list_f);
 	fclose(items_db_f);
@@ -298,9 +291,9 @@ state print_records(void* data, void* params)
 	{
 		*(n + i) = list->records[i].id;
 		*(department + i) = list->records[i].department;
-		*(item_name + i) = list->records[i].item->name;
-		*(item_model + i) = list->records[i].item->model;
-		*(item_price + i) = list->records[i].item->price;
+		*(item_name + i) = get_item_by_id(list->records[i].item_id, &items_db)->name;
+		*(item_model + i) = get_item_by_id(list->records[i].item_id, &items_db)->model;
+		*(item_price + i) = get_item_by_id(list->records[i].item_id, &items_db)->price;
 		*(count + i) = list->records[i].count;
 		
 	}
@@ -320,10 +313,9 @@ state print_records(void* data, void* params)
 	return REDRAW_ALL;
 }
 
-state add_test_items(void* data, void* param)
+state add_test_items(void*, void*)
 {
 	system("cls");
-	items_db_t* items_db = (items_db_t*)data;
 	size_t add_count, i, j;
 
 	static const char* names[] = { "Перфоратор", "Дрель", "Лобзик", "Шуроповерт", "Циркулярная пила" };
@@ -333,25 +325,23 @@ state add_test_items(void* data, void* param)
 	printf(Rus("Сколько записей добавить: "));
 	add_count = read_int(stdin);
 
-	items_db->items = (item_t*)realloc(items_db->items, sizeof(item_t) * (items_db->count + add_count));
+	items_db.items = (item_t*)realloc(items_db.items, sizeof(item_t) * (items_db.count + add_count));
 
 	for (i = 0; i < add_count; ++i) {			//Заполняем случайными значениями элемент массива
 		j = rand() % count;
-		items_db->items[items_db->count].id = items_db->count ? items_db->items[items_db->count - 1].id + 1 : 1;
-		strcpy(items_db->items[items_db->count].name, Rus(names[j]));
-		strcpy(items_db->items[items_db->count].model, Rus(model[j]));
-		strcat(items_db->items[items_db->count].model, int_to_str(get_rand(1, 900)));
-		items_db->items[items_db->count].price = (float)get_rand(0, 100) + (float)get_rand(0, 99) / 100;
-		++items_db->count;
+		items_db.items[items_db.count].id = items_db.count ? items_db.items[items_db.count - 1].id + 1 : 1;
+		strcpy(items_db.items[items_db.count].name, Rus(names[j]));
+		strcpy(items_db.items[items_db.count].model, Rus(model[j]));
+		strcat(items_db.items[items_db.count].model, int_to_str(get_rand(1, 900)));
+		items_db.items[items_db.count].price = (float)get_rand(0, 100) + (float)get_rand(0, 99) / 100;
+		++items_db.count;
 	}
 
 	return REDRAW_ALL;
 }
 
-state add_test_records(void* data, void* param) {
+state add_test_records(void*, void*) {
 	system("cls");
-	list_t* list = (list_t*)data;
-	items_db_t* items_db = (items_db_t*)param;
 	size_t add_count, i, j;
 	static const char* names[] = { "Слесарный", "Инструментальный", "Первый", "Второй", "Третий" };
 	size_t count = 5;
@@ -359,24 +349,24 @@ state add_test_records(void* data, void* param) {
 	printf(Rus("Сколько записей добавить: "));
 	add_count = read_int(stdin);
 
-	list->records = (record_t*)realloc(list->records, sizeof(record_t) * (list->count + add_count));
+	list.records = (record_t*)realloc(list.records, sizeof(record_t) * (list.count + add_count));
 
 	for (i = 0; i < add_count; ++i) {			//Заполняем случайными значениями элемент массива
 		j = rand() % count;
-		list->records[list->count].id = list->count ? list->records[list->count - 1].id + 1 : 1;
-		strcpy(list->records[list->count].department, Rus(names[j]));
-		list->records[list->count].item = get_random_item(items_db);
-		list->records[list->count].count = get_rand(0, 10);
-		++list->count;
+		list.records[list.count].id = list.count ? list.records[list.count - 1].id + 1 : 1;
+		strcpy(list.records[list.count].department, Rus(names[j]));
+		list.records[list.count].item_id = get_random_item(&items_db);
+		list.records[list.count].count = get_rand(0, 10);
+		++list.count;
 	}
 
 	return REDRAW_ALL;
 }
 
 
-item_t* get_random_item(items_db_t* items_db)
+size_t get_random_item(items_db_t* items_db)
 {
-	return &items_db->items[rand() % items_db->count];
+	return items_db->items[rand() % items_db->count].id;
 }
 
 state add_record(void* data, void* params)
