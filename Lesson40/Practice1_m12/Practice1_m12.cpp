@@ -8,9 +8,6 @@
 * amatu, 4/16/2016 1:28:56 PM
 */
 
-#define CONSOLE_WIDTH	120
-#define CONSOLE_HEIGTH	25
-
 #define ITEMS_DB_F		"items.db"
 #define	LIST_F			"list"
 
@@ -44,7 +41,8 @@ enum field_types {
 	INPUTFIELD,
 	CHECKBOX,
 	RADIO,
-	SEPARATOR
+	SEPARATOR,
+	BUTTON
 };
 
 typedef state(*event_cb_t)(void *data, void* params);
@@ -68,6 +66,44 @@ typedef struct menu {
 	struct menu_item*	prev_selected;
 	state				menu_state;
 } menu_t;
+
+typedef struct field_input {
+	char input_buffer[50];
+} field_input_t;
+
+typedef struct field_checkbox {
+	__int8 checked;
+} field_checkbox_t;
+
+typedef struct field_radio {
+	size_t radio_id;
+	__int8 checked;
+	int		radio_data;
+} field_radio_t;
+
+typedef struct field_button {
+	event_cb*	action;
+} field_button_t;
+
+typedef struct field_item {
+	char				text[50];
+	field_types type;
+	union data {
+		field_input_t		*input;
+		field_checkbox_t	*checkbox;
+		field_radio_t		*radio;
+		field_button_t		*button;
+	} data;
+	struct field_item*	next;
+} field_item_t;
+
+typedef struct form {
+	char				name[50];
+	struct field_item*	head;
+	struct field_item*	selected;
+	struct field_item*	prev_selected;
+	state				form_state;
+} form_t;
 
 typedef struct table_column {
 	char		text[80];
@@ -100,6 +136,13 @@ void	menu_show(menu_t* menu);
 state	menu_execute(void* menu, void* params);
 void	menu_free(menu_t* menu);
 
+void	form_add_item(form_t* form, char text[50], field_types type, void* data);
+form_t* form_create(char text[50]);
+void	form_show(form_t* form, int key_code);
+state	form_execute(void* form, void* params);
+void	form_free(form_t* form);
+size_t	field_get_id(form_t* form, field_item_t* field);
+
 int		get_code(void);
 
 char*	Rus(const char* text);
@@ -119,7 +162,6 @@ __int64 pow(__int64 base, __int64 exp);
 int*	parse_ints(int* nums, char* str, int* count);
 __int8	is_valid_char(int ch);
 
-void	set_console_size(size_t x, size_t y);
 void	make_borders(char* text);
 
 //Переменные для настройки консоли
@@ -149,11 +191,13 @@ typedef struct record {
 typedef struct items_db {
 	item_t* items;
 	size_t count;
+	size_t last_id;
 } items_db_t;
 
 typedef struct list {
 	record_t* records;
 	size_t count;
+	size_t last_id;
 } list_t;
 
 state add_record(void* data, void* params);
@@ -168,8 +212,12 @@ state save_files(void* data, void* params);
 
 item_t* get_item_by_id(size_t id, items_db_t* items_db);
 
-list_t list = { NULL, 0 };
-items_db_t items_db = { NULL, 0 };
+list_t list = { NULL, 0, 0 };
+items_db_t items_db = { NULL, 0, 0 };
+
+form_t* create_form(void* data, void* params);
+state add_record_form(void* data, void* params);
+state add_record_cb(void* data, void* params);
 
 int main() {
 	//Сохраняем текущие параметры консоли
@@ -180,13 +228,12 @@ int main() {
 	menu_t* main_menu = menu_create("Главное меню");
 
 	//Добавляем пункты в меню
-	menu_add_item(main_menu, Rus("Добавить запись"), &add_record, &list, NULL);
+	menu_add_item(main_menu, Rus("Добавить запись"), &add_record_form, &list, NULL);
 	menu_add_item(main_menu, Rus("Добавить тестовые записи в базу оборудования"), &add_test_items, &items_db, NULL);
 	menu_add_item(main_menu, Rus("Добавить тестовые записи в список оборудования в цехах"), &add_test_records, &list, &items_db);
 	menu_add_item(main_menu, Rus("Вывести список оборудования"), &print_records, &list, "Cписок оборудования");
 	menu_add_item(main_menu, Rus("Сохранить БД"), &save_files, NULL, NULL);
 	menu_add_item(main_menu, Rus("Прочитать БД"), &read_files, NULL, NULL);
-
 
 	menu_add_item(main_menu, "Exit", &exit_program, NULL, NULL);
 
@@ -215,7 +262,9 @@ item_t* get_item_by_id(size_t id, items_db_t* items_db)
 state read_files(void*, void*)
 {
 	list.count = 0;
+	list.last_id = 0;
 	items_db.count = 0;
+	items_db.last_id = 0;
 
 	FILE * list_f = fopen(LIST_F, "r");
 	FILE * items_db_f = fopen(ITEMS_DB_F, "r");
@@ -232,7 +281,7 @@ state read_files(void*, void*)
 
 	while (fread(&list.records[list.count], sizeof(record_t), 1, list_f))
 	{
-		++list.count;
+		list.last_id = list.records[list.count]
 		list.records = (record_t*)realloc(list.records, sizeof(record_t) * (list.count + 1));
 	}
 
@@ -257,6 +306,57 @@ state save_files(void*, void*)
 	fclose(items_db_f);
 
 	return CONTINUE;
+}
+
+
+state add_record_form(void* data, void* params) {
+	form_t* add_form = create_form(data, params);
+
+	form_execute(add_form, NULL);
+
+	form_free(add_form);
+	return REDRAW_ALL;
+}
+
+state add_record_cb(void* data, void* params) {
+	form_t* form = (form_t*)data;
+	field_item_t* current = form->head;
+	list.records = (record_t*)realloc(list.records, sizeof(record_t) * (list.count + 1));
+	list.records[list.count].id = ++list.last_id;
+	strcpy(list.records[list.count].department, current->data.input->input_buffer);
+	current = current->next;
+	list.records[list.count].id = str_to_int(current->data.input->input_buffer);
+	current = current->next;
+	list.records[list.count].count = str_to_int(current->data.input->input_buffer);
+	++list.count;
+	return EXIT;
+}
+
+form_t* create_form(void* data, void* params) {
+	form_t* form = form_create("Добавление записи");
+
+	field_input_t* input1 = (field_input_t*)calloc(1, sizeof(field_input_t));
+	form_add_item(form, Rus("Цех"), INPUTFIELD, input1);
+
+	field_input_t* input2 = (field_input_t*)calloc(1, sizeof(field_input_t));
+	form_add_item(form, Rus("ID"), INPUTFIELD, input2);
+
+	field_input_t* input3 = (field_input_t*)calloc(1, sizeof(field_input_t));
+	form_add_item(form, Rus("Количество"), INPUTFIELD, input3);
+
+	field_button_t* button1 = (field_button_t*)calloc(1, sizeof(field_button_t));
+	button1->action = (event_cb*)malloc(sizeof(event_cb));
+	button1->action->cb = &add_record_cb;
+	button1->action->data = form;
+	button1->action->params = params;
+	form_add_item(form, Rus("Сохранить"), BUTTON, button1);
+
+	field_button_t* button2 = (field_button_t*)calloc(1, sizeof(field_button_t));
+	button2->action = (event_cb*)malloc(sizeof(event_cb));
+	button2->action->cb = &exit_sub;
+	form_add_item(form, Rus("Назад"), BUTTON, button1);
+
+	return form;
 }
 
 //Функция формирует данные для таблицы и выводит данные на экран
@@ -298,8 +398,21 @@ state print_records(void* data, void* params)
 		
 	}
 
+	//Получаем ширину консоли
+	size_t sreen_width;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	int ret;
+	ret = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	if (ret)
+	{
+		sreen_width = csbi.srWindow.Right - 3;
+	}
+	else {
+		sreen_width = 80;
+	}
+
 	//Выводим таблицу
-	table_print(table, CONSOLE_WIDTH - 5);
+	table_print(table, sreen_width);
 
 	//Освобождаем память
 	free(n);
@@ -329,7 +442,7 @@ state add_test_items(void*, void*)
 
 	for (i = 0; i < add_count; ++i) {			//Заполняем случайными значениями элемент массива
 		j = rand() % count;
-		items_db.items[items_db.count].id = items_db.count ? items_db.items[items_db.count - 1].id + 1 : 1;
+		items_db.items[items_db.count].id = ++items_db.last_id;
 		strcpy(items_db.items[items_db.count].name, Rus(names[j]));
 		strcpy(items_db.items[items_db.count].model, Rus(model[j]));
 		strcat(items_db.items[items_db.count].model, int_to_str(get_rand(1, 900)));
@@ -353,7 +466,7 @@ state add_test_records(void*, void*) {
 
 	for (i = 0; i < add_count; ++i) {			//Заполняем случайными значениями элемент массива
 		j = rand() % count;
-		list.records[list.count].id = list.count ? list.records[list.count - 1].id + 1 : 1;
+		list.records[list.count].id = ++list.last_id;
 		strcpy(list.records[list.count].department, Rus(names[j]));
 		list.records[list.count].item_id = get_random_item(&items_db);
 		list.records[list.count].count = get_rand(0, 10);
@@ -372,15 +485,6 @@ size_t get_random_item(items_db_t* items_db)
 state add_record(void* data, void* params)
 {
 	return CONTINUE;
-}
-
-void set_console_size(size_t x, size_t y) {
-	char command[20] = { 0 };
-	strcat(command, "mode ");
-	strcat(command, int_to_str(x));
-	strcat(command, ", ");
-	strcat(command, int_to_str(y));
-	system(command);
 }
 
 //Функция создает и инициализирует таблицу и возвращает указатель на нее
@@ -634,27 +738,42 @@ state exit_sub(void*, void*)
 void make_borders(char* text) {
 	size_t i, j, tmp;
 
+	//Получаем ширину консоли
+	size_t screen_width, screen_height;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	int ret;
+	ret = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	if (ret)
+	{
+		screen_width = csbi.srWindow.Right;
+		screen_height = csbi.srWindow.Bottom - 2;
+	}
+	else {
+		screen_width = 80;
+		screen_height = 25;
+	}
+
 	printf(RusW(L"╔"));
-	tmp = CONSOLE_WIDTH / 2 - strlen(text) / 2;
-	for (i = 0; i < tmp - 3; ++i) {
+	tmp = screen_width / 2 - strlen(text) / 2;
+	for (i = 0; i < tmp - 2; ++i) {
 		printf(RusW(L"═"));
 	}
 	printf(Rus(text));
-	for (i = tmp + strlen(text); i < CONSOLE_WIDTH; ++i) {
+	for (i = tmp + strlen(text); i < screen_width; ++i) {
 		printf(RusW(L"═"));
 	}
 	printf(RusW(L"╗\n"));
 
-	for (i = 0; i < CONSOLE_HEIGTH - 3; ++i) {
+	for (i = 0; i < screen_height; ++i) {
 		printf(RusW(L"║"));
-		for (j = 0; j < CONSOLE_WIDTH - 3; ++j) {
+		for (j = 0; j < screen_width - 2; ++j) {
 			printf(" ");
 		}
 		printf(RusW(L"║\n"));
 	}
 
 	printf(RusW(L"╚"));
-	for (j = 0; j < CONSOLE_WIDTH - 3; ++j) {
+	for (j = 0; j < screen_width - 2; ++j) {
 		printf(RusW(L"═"));
 	}
 	printf(RusW(L"╝\n"));
@@ -708,6 +827,11 @@ void menu_show(menu_t* menu) {
 	coord.X = 1;
 	size_t rows = 1;
 
+	cci.dwSize = 1;
+	cci.bVisible = FALSE;
+	SetConsoleCursorInfo(hConsole, &cci);
+
+
 	if (menu->menu_state == REDRAW_ALL) {
 		system("cls");
 		make_borders(menu->name);
@@ -749,10 +873,6 @@ void menu_show(menu_t* menu) {
 
 state menu_execute(void* data, void*) {
 	menu_t* menu = (menu_t*)data;
-
-	cci.dwSize = 1;
-	cci.bVisible = FALSE;
-	SetConsoleCursorInfo(hConsole, &cci);
 
 	menu_show(menu);
 
@@ -799,6 +919,314 @@ void menu_free(menu_t* menu) {
 		} while (current);
 	}
 	free(menu);
+}
+
+void form_add_item(form_t* form, char text[50], field_types type, void* data) {
+	field_item_t* current = form->head;
+
+	if (current) {
+		while (current->next != NULL) {
+			current = current->next;
+		}
+
+		current->next = (field_item_t*)calloc(1, sizeof(field_item_t));
+		strcpy(current->next->text, text);
+		current->next->type = type;
+		switch (type)
+		{
+		case INPUTFIELD:
+			current->next->data.input = (field_input_t*)data;
+			break;
+		case CHECKBOX:
+			current->next->data.checkbox = (field_checkbox_t*)data;
+			break;
+		case RADIO:
+			current->next->data.radio = (field_radio_t*)data;
+			break;
+		case BUTTON:
+			current->next->data.button = (field_button_t*)data;
+			break;
+		default:
+			break;
+		}
+		current->next->next = NULL;
+	}
+	else {
+		form->head = (field_item_t*)calloc(1, sizeof(field_item_t));
+		strcpy(form->head->text, text);
+		form->head->type = type;
+		switch (type)
+		{
+		case INPUTFIELD:
+			form->head->data.input = (field_input_t*)data;
+			break;
+		case CHECKBOX:
+			form->head->data.checkbox = (field_checkbox_t*)data;
+			break;
+		case RADIO:
+			form->head->data.radio = (field_radio_t*)data;
+			break;
+		case BUTTON:
+			form->head->data.button = (field_button_t*)data;
+			break;
+		default:
+			break;
+		}
+		form->head->next = NULL;
+		form->selected = form->head;
+	}
+}
+
+form_t* form_create(char text[50]) {
+	form_t* new_form = (form_t*)calloc(1, sizeof(form_t));
+	if (!new_form) {
+		return NULL;
+	}
+
+	strcpy_s(new_form->name, text);
+	new_form->head = NULL;
+	new_form->selected = NULL;
+	new_form->form_state = REDRAW_ALL;
+	return new_form;
+}
+
+void form_show(form_t* form, int key_code) {
+	COORD coord;
+	coord.X = 1;
+	size_t rows = 1;
+
+	if (form->form_state == REDRAW_ALL) {
+		system("cls");
+		make_borders(form->name);
+		field_item_t* current = form->head;
+
+		while (current != NULL) {
+			coord.Y = rows++;
+			SetConsoleCursorPosition(hConsole, coord);
+
+			if (current == form->selected)
+				SetConsoleTextAttribute(hConsole, HIGHLIGHT_COLOR);
+
+			switch (current->type)
+			{
+			case INPUTFIELD:
+				printf("%s : ", current->text);
+				SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+				printf("%s", current->data.input->input_buffer);
+				break;
+			case CHECKBOX:
+				printf("%s [%c]", current->text, current->data.checkbox->checked ? '*' : ' ');
+				break;
+			case RADIO:
+				printf("%s (%c)", current->text, current->data.radio->checked ? '*' : ' ');
+				break;
+			case SEPARATOR:
+			case BUTTON:
+				printf("%s", current->text);
+				break;
+			default:
+				break;
+			}
+
+			if (current == form->selected)
+				SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+			printf("\n");
+			current = current->next;
+		}
+		form->form_state = CONTINUE;
+	}
+	else if (form->form_state == REDRAW_SELECTED) {
+		field_item_t* current = form->head;
+
+		while (current != NULL) {
+			coord.Y = rows++;
+			SetConsoleCursorPosition(hConsole, coord);
+			if (current == form->selected || current == form->prev_selected ||
+				(form->selected->type == RADIO &&
+					current->type == RADIO &&
+					current->data.radio->radio_id == form->selected->data.radio->radio_id)) {
+				if (current == form->selected)
+					SetConsoleTextAttribute(hConsole, HIGHLIGHT_COLOR);
+
+				switch (current->type)
+				{
+				case INPUTFIELD:
+					printf("%s : ", current->text);
+					SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+					printf("%s", current->data.input->input_buffer);
+					size_t i;
+					for (i = 0; i < sizeof(current->data.input->input_buffer) - strlen(current->data.input->input_buffer); ++i) {
+						printf(" ");
+					}
+					break;
+				case CHECKBOX:
+					printf("%s [%c]", current->text, current->data.checkbox->checked ? '*' : ' ');
+					break;
+				case RADIO:
+					printf("%s (%c)", current->text, current->data.radio->checked ? '*' : ' ');
+					break;
+				case SEPARATOR:
+				case BUTTON:
+					printf("%s", current->text);
+					break;
+				default:
+					break;
+				}
+
+				if (current == form->selected)
+					SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+				printf("\n");
+			}
+			current = current->next;
+		}
+		form->form_state = CONTINUE;
+	}
+
+	coord.Y = field_get_id(form, form->selected);;
+	cci.dwSize = 5;
+
+	switch (form->selected->type) {
+	case INPUTFIELD:
+		coord.X = strlen(form->selected->text) + 4 + strlen(form->selected->data.input->input_buffer);
+		cci.bVisible = TRUE;
+		break;
+	case CHECKBOX:
+		coord.X = strlen(form->selected->text) + 3;
+		cci.bVisible = TRUE;
+		break;
+	case RADIO:
+		coord.X = strlen(form->selected->text) + 3;
+		cci.bVisible = TRUE;
+		break;
+	default:
+		cci.bVisible = FALSE;
+		break;
+	}
+	SetConsoleCursorPosition(hConsole, coord);
+	SetConsoleCursorInfo(hConsole, &cci);
+}
+
+size_t field_get_id(form_t* form, field_item_t* field) {
+	size_t id = 1;
+	field_item_t* current = form->head;
+	while (current != field) {
+		++id;
+		current = current->next;
+	}
+	return id;
+}
+
+state form_execute(void* data, void*) {
+	form_t* form = (form_t*)data;
+	int ch = 0;
+
+	field_item_t* current;
+
+	form_show(form, ch);
+
+	do {
+
+		ch = _getch();
+
+		if (ch == 0 || ch == 224) {
+			ch = 256 + _getch();
+		}
+
+		switch (ch) {
+		case KEY_BACKSPACE:
+			if (form->selected->type == INPUTFIELD) {
+				form->selected->data.input->input_buffer[strlen(form->selected->data.input->input_buffer) - 1] = '\0';
+				form->form_state = REDRAW_SELECTED;
+			}
+			break;
+		case KEY_ENTER:
+			if(form->selected->type == BUTTON)
+			{
+				form->form_state = form->selected->data.button->action->cb(
+					form->selected->data.button->action->data, 
+					form->selected->data.button->action->params);
+			}
+			break;
+		case KEY_SPACE:
+			if (form->selected->type == INPUTFIELD) {
+				if (strlen(form->selected->data.input->input_buffer) < sizeof(form->selected->data.input->input_buffer) - 1)
+					form->selected->data.input->input_buffer[strlen(form->selected->data.input->input_buffer)] = ch;
+				form->form_state = REDRAW_SELECTED;
+			}
+			if (form->selected->type == CHECKBOX) {
+				if (form->selected->data.checkbox->checked)
+					form->selected->data.checkbox->checked = 0;
+				else
+					form->selected->data.checkbox->checked = 1;
+				form->form_state = REDRAW_SELECTED;
+			}
+			if (form->selected->type == RADIO) {
+				current = form->head;
+				while (current) {
+					if (current->type == RADIO &&
+						current->data.radio->radio_id == form->selected->data.radio->radio_id &&
+						current != form->selected)
+						current->data.radio->checked = 0;
+
+					current = current->next;
+				}
+				form->selected->data.radio->checked = 1;
+				form->form_state = REDRAW_SELECTED;
+			}
+			break;
+		case ARROW_UP:
+			form->prev_selected = form->selected;
+			while (form->head != form->selected) {
+				current = form->head;
+				while (current->next != form->selected) {
+					current = current->next;
+				}
+
+				form->selected = current;
+				if (form->selected->type != SEPARATOR) {
+					form->form_state = REDRAW_SELECTED;
+					break;
+				}
+			}
+			break;
+		case ARROW_DOWN:
+			current = form->selected;
+			while (current->next) {
+				current = current->next;
+				if (current->type != SEPARATOR) {
+					form->prev_selected = form->selected;
+					form->selected = current;
+					form->form_state = REDRAW_SELECTED;
+					break;
+				}
+			}
+			break;
+		default:
+			if (is_valid_char(ch)) {
+				if (form->selected->type == INPUTFIELD) {
+					if (strlen(form->selected->data.input->input_buffer) < sizeof(form->selected->data.input->input_buffer) - 1)
+						form->selected->data.input->input_buffer[strlen(form->selected->data.input->input_buffer)] = ch;
+					form->form_state = REDRAW_SELECTED;
+				}
+			}
+			break;
+		}
+		form_show(form, ch);
+	} while (form->form_state);
+	return REDRAW_ALL;
+}
+
+void form_free(form_t* form) {
+	if (form->head) {
+		field_item_t* current = form->head;
+		field_item_t* tmp;
+		do {
+			tmp = current;
+			current = current->next;
+			free(tmp);
+		} while (current);
+	}
+	free(form);
 }
 
 static int get_code(void) {
