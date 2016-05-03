@@ -45,7 +45,10 @@ enum field_types {
 	BUTTON
 };
 
+
+typedef unsigned char bool_t;
 typedef state(*event_cb_t)(void *data, void* params);
+typedef bool_t(*check_input_t)(char* buf, int ch);
 
 struct event_cb {
 	event_cb_t	cb;
@@ -69,7 +72,10 @@ typedef struct menu {
 
 typedef struct field_input {
 	char input_buffer[50];
+	check_input_t check_cb;
 } field_input_t;
+
+bool_t check_text(char* buf, int ch);
 
 typedef struct field_checkbox {
 	__int8 checked;
@@ -240,7 +246,6 @@ int main() {
 	//Выполняем меню
 	menu_execute(main_menu, NULL);
 
-
 	menu_free(main_menu);
 
 	return 0;
@@ -269,19 +274,20 @@ state read_files(void*, void*)
 	FILE * list_f = fopen(LIST_F, "r");
 	FILE * items_db_f = fopen(ITEMS_DB_F, "r");
 
-
 	items_db.items = (item_t*)realloc(items_db.items, sizeof(item_t) * (items_db.count + 1));
 	list.records = (record_t*)realloc(list.records, sizeof(record_t) * (list.count + 1));
 
 	while (fread(&items_db.items[items_db.count], sizeof(item_t), 1, items_db_f))
 	{
+		items_db.last_id = items_db.items[items_db.count].id;
 		++items_db.count;
 		items_db.items = (item_t*)realloc(items_db.items, sizeof(item_t) * (items_db.count + 1));
 	}
 
 	while (fread(&list.records[list.count], sizeof(record_t), 1, list_f))
 	{
-		list.last_id = list.records[list.count]
+		list.last_id = list.records[list.count].id;
+		++list.count;
 		list.records = (record_t*)realloc(list.records, sizeof(record_t) * (list.count + 1));
 	}
 
@@ -336,6 +342,7 @@ form_t* create_form(void* data, void* params) {
 	form_t* form = form_create("Добавление записи");
 
 	field_input_t* input1 = (field_input_t*)calloc(1, sizeof(field_input_t));
+	input1->check_cb = &check_text;
 	form_add_item(form, Rus("Цех"), INPUTFIELD, input1);
 
 	field_input_t* input2 = (field_input_t*)calloc(1, sizeof(field_input_t));
@@ -779,7 +786,6 @@ void make_borders(char* text) {
 	printf(RusW(L"╝\n"));
 }
 
-
 void menu_add_item(menu_t* menu, char text[50], event_cb_t action, void* data, void* params) {
 	menu_item_t* current = menu->head;
 
@@ -830,7 +836,6 @@ void menu_show(menu_t* menu) {
 	cci.dwSize = 1;
 	cci.bVisible = FALSE;
 	SetConsoleCursorInfo(hConsole, &cci);
-
 
 	if (menu->menu_state == REDRAW_ALL) {
 		system("cls");
@@ -1116,6 +1121,10 @@ size_t field_get_id(form_t* form, field_item_t* field) {
 	return id;
 }
 
+bool_t check_text(char* buf, int ch) {
+	return ch >= 32 && ch <= 126 || ch >= 128 && ch <= 254;
+}
+
 state form_execute(void* data, void*) {
 	form_t* form = (form_t*)data;
 	int ch = 0;
@@ -1202,13 +1211,12 @@ state form_execute(void* data, void*) {
 			}
 			break;
 		default:
-			if (is_valid_char(ch)) {
-				if (form->selected->type == INPUTFIELD) {
+				if (form->selected->type == INPUTFIELD && form->selected->data.input->check_cb(
+				form->selected->data.input->input_buffer, ch)) {
 					if (strlen(form->selected->data.input->input_buffer) < sizeof(form->selected->data.input->input_buffer) - 1)
 						form->selected->data.input->input_buffer[strlen(form->selected->data.input->input_buffer)] = ch;
 					form->form_state = REDRAW_SELECTED;
 				}
-			}
 			break;
 		}
 		form_show(form, ch);
@@ -1434,9 +1442,4 @@ __int64 pow(__int64 base, __int64 exp)
 	}
 
 	return result;
-}
-
-__int8 is_valid_char(int ch)
-{
-	return ch >= 32 && ch <= 126 || ch >= 128 && ch <= 254;
 }

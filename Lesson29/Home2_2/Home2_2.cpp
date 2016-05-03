@@ -24,7 +24,7 @@
 //Настраиваемые параметры задания
 #define MAX_SIZE			7
 #define MIN_SIZE			4
-#define TASK_ZONE			SEC_DIAG_UP
+#define TASK_ZONE			MAIN_DIAG | SEC_DIAG
 
 //Настройки вывода
 #define HIGHLIGHT_COLOR		FOREGROUND_RED | FOREGROUND_INTENSITY
