@@ -10,7 +10,7 @@
 #define ARR_FILE_NAME	"arr.dat"
 #define STR_FILE_NAME	"strings.txt"
 #define HALT			""
-#define VOWEL			"aeiouYAEIOUY"
+#define VOWEL			"aeiouAEIOU"
 
 enum state {
 	EXIT,
@@ -137,6 +137,7 @@ int main() {
 
 state task1(void* data, void* params)
 {
+	arr_count = 0;
 	system("cls");
 	char ch;
 	if (exist(ARR_FILE_NAME))
@@ -180,6 +181,7 @@ state task1(void* data, void* params)
 
 state task2(void* data, void* params)
 {
+	str_count = 0;
 	system("cls");
 	char ch;
 	if (exist(STR_FILE_NAME))
@@ -266,12 +268,12 @@ state do_task2(void*, void*)
 				++j;
 			}
 		}
-		if (vowel_count>consonant_count)
+		if (vowel_count > consonant_count)
 		{
 			printf(Rus("В тексте больше гласных\n"));
-		} else if (consonant_count<vowel_count)
+		} else if (consonant_count > vowel_count)
 		{
-			printf(Rus("В тексте согласных\n"));
+			printf(Rus("В тексте больше согласных\n"));
 		} else
 		{
 			printf(Rus("Гласных и согласных поровну\n"));
@@ -287,8 +289,15 @@ state do_task2(void*, void*)
 
 int is_vowel(char ch)
 {
-	if (is_letter(ch) && chr_cmp(ch, VOWEL))
-		return 1;
+	char str[] = VOWEL;
+	int i = 0;
+
+	while (str[i])
+	{
+		if (ch == str[i])
+			return 1;
+		++i;
+	}
 	return 0;
 }
 
@@ -330,6 +339,7 @@ state read_arr(void*, void*)
 	size_t i = 0;
 	if (file = fopen(ARR_FILE_NAME, "r"))
 	{
+		arr_count = 0;
 		arr = (__int64*)realloc(arr, sizeof(__int64) * (arr_count + 1));
 		while(fread(arr + arr_count,sizeof(__int64),1,file))
 		{
@@ -414,6 +424,7 @@ state input_arr(void* data, void* params)
 	cci.bVisible = TRUE;
 	SetConsoleCursorInfo(hConsole, &cci);
 	system("cls");
+	flush_stream(stdin);
 	printf(Rus("Вводите числа и они будут записаны в массив.\n"));
 	printf(Rus("Для прекращения ввода-<Enter> в начале строки.\n"));
 	arr = read_array(arr, &arr_count);
@@ -451,10 +462,11 @@ state read_str(void*, void*)
 {
 	system("cls");
 	FILE* file;
-	size_t i = 0;
 	if (file = fopen(STR_FILE_NAME, "r"))
 	{
+		str_count = 0;
 		str = read_strings(file, str, &str_count);
+		printf(Rus("Считано строк - %d\n"), str_count);
 	}
 	else
 	{
@@ -496,6 +508,7 @@ state save_str(void* data, void* params)
 						fputc('\n', file);
 					}
 					fclose(file);
+					printf(Rus("Файл сохранен!\n"));
 				}
 				else
 				{
@@ -517,6 +530,7 @@ state save_str(void* data, void* params)
 					fputc('\n', file);
 				}
 				fclose(file);
+				printf(Rus("Файл сохранен!\n"));
 			}
 			else
 			{
